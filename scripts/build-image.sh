@@ -4,7 +4,10 @@ set -euo pipefail
 engine=${CONTAINER_ENGINE:-podman}
 revision=$(git rev-parse HEAD)
 image=${1:-localhost/snakeout:$revision}
-context=$(mktemp -d)
+git diff --quiet && git diff --cached --quiet || { echo "Commit reviewed changes first." >&2; exit 1; }
+cache=${XDG_CACHE_HOME:-$HOME/.cache}/snakeout-cve-build
+mkdir -p "$cache"
+context=$(mktemp -d "$cache/context.XXXXXX")
 trap 'rm -rf "$context"' EXIT
 mkdir "$context/app"
 git archive HEAD | tar -x -C "$context/app"
@@ -19,6 +22,6 @@ CMD ["web"]
 EOF
 # Shared with other apps on this workstation; held for the full heavy build.
 format_args=()
-if [[ "$engine" == "podman" ]]; then format_args=(--format docker); fi
+if [[ "$engine" == "podman" ]]; then format_args=(--format docker --memory=2g --cpus=2); fi
 flock /tmp/dokku-cve-offhost-build.lock "$engine" build "${format_args[@]}" -f "$context/Containerfile" -t "$image" "$context"
 printf 'Built %s from %s\n' "$image" "$revision"

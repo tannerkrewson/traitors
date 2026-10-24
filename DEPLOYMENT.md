@@ -25,9 +25,16 @@ share `/tmp/dokku-cve-offhost-build.lock` with the other apps. Run npm ci, npm t
 image through `/start web` with NODE_ENV=production, a local published PORT, HTTP,
 assets, valid Brotli requests and Socket.IO before deployment.
 
+Use a disk-backed artifact directory such as `.local-build-artifacts/<source SHA>`
+(gitignored), never `/tmp` for multi-GB archives: `/tmp` is RAM-backed on this
+workstation. Build contexts use `~/.cache/snakeout-cve-build` on disk. Local Podman
+builds are capped at 2 GiB/2 CPUs. Tooling-only changes may reuse a tested image;
+its revision label always identifies the actual committed source used to build it.
+
 GitHub CI still tests pushes, but **master pushes no longer deploy**. The manual
 `Build deployment image` workflow builds and exports an archive artifact off-host;
-it does not deploy. It needs only GitHub contents read/artifact write capabilities,
+it does not deploy. Manual dispatch becomes available once this workflow is on the
+default branch; before then use the local build path above. It needs only GitHub contents read/artifact write capabilities,
 not production secrets, registry credentials or a new paid service. Existing
 PRIVATE_KEY is not consumed by this new path.
 
@@ -39,6 +46,15 @@ https://github.com/dokku/dokku/blob/v0.36.3/docs/deployment/methods/image.md
 It creates a tiny FROM-only build, not an application/dependency build. Herokuish
 process metadata and /start remain in the imported image. Dokku injects live app
 environment at runtime; do not bake production configuration into the image.
+
+The reviewed `scripts/deploy-image.sh ARTIFACT_DIRECTORY` accepts `image.tar`,
+`image.tar.sha256` (sha256sum format), `image.id` (sha256-prefixed), `image.tag`,
+and `source.commit`. Set `SNAKEOUT_DEPLOY_SLOT=approved` only with an exclusive slot.
+It checks checksums, loaded image identity/provenance and headroom, protects the
+old image, saves source privately, and imports the image. With empty original bare
+refs it saves explicit non-secret source from the running container instead of
+claiming a successful empty Git bundle. Immediately perform postdeploy checks;
+on failure use the printed rollback tag even if the deploy command succeeded.
 
 1. Record container/image IDs, health of all four apps, free RAM/disk and current
    source. Preserve the current image with a unique `snakeout-rollback:<timestamp>`
