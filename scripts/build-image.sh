@@ -13,7 +13,9 @@ FROM docker.io/gliderlabs/herokuish@sha256:475ba6ea9eaa02934eb694d842c61adcdd49a
 COPY app/ /app/
 RUN /bin/herokuish buildpack build
 LABEL org.opencontainers.image.revision=$revision
-CMD ["/start", "web"]
+EXPOSE 5000
+ENTRYPOINT ["/start"]
+CMD ["web"]
 EOF
 # Shared with other apps on this workstation; held for the full heavy build.
 format_args=()
