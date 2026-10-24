@@ -1,0 +1,25 @@
+name: Build deployment image
+
+on:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    image:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Build off-host with the pinned buildpack
+              env:
+                  CONTAINER_ENGINE: docker
+              run: bash scripts/build-image.sh localhost/snakeout:${{ github.sha }}
+            - name: Export image
+              run: docker save localhost/snakeout:${{ github.sha }} | gzip > snakeout-image.tar.gz
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: snakeout-image-${{ github.sha }}
+                  path: snakeout-image.tar.gz
+                  retention-days: 7
+            # No automatic deployment: operator verifies image and shared-host slot.

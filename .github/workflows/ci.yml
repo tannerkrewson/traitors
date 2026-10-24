@@ -12,16 +12,10 @@ jobs:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
               with:
-                  node-version: 22
+                  node-version: "22.23.4"
             - run: npm i
             - run: npm run build:prod
             - run: npm test
 
-            - if: github.ref == 'refs/heads/master'
-              name: Dokku deploy
-              uses: vitalyliber/dokku-github-action@v7.1
-              env:
-                  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-                  HOST: 134.209.222.77
-                  PROJECT: snakeout
-                  BRANCH: master
+            # Production deployment is now an explicit, serialized image import.
+            # Do not restore git-push deployment: it builds on the shared 2 GB host.

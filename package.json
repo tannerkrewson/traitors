@@ -9,6 +9,7 @@
         "build:dev": "vite",
         "start:prod": "node src/server/bin/www",
         "build:prod": "vite build",
+        "heroku-postbuild": "npm run build:prod",
         "test": "tape src/server/test/*.js",
         "prepare": "husky"
     },
@@ -47,6 +48,6 @@
     },
     "homepage": "https://snakeout.tannerkrewson.com/",
     "engines": {
-        "node": "22.x"
+        "node": "22.23.4"
     }
 }
