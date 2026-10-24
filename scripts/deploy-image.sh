@@ -46,6 +46,9 @@ fi
 docker load -i "$archive"
 test "$(docker image inspect --format '{{.Id}}' "$image")" = "$expected"
 test "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$image")" = "$revision"
+# Dockerfile imports infer exposed port 5000 as an external port. Preserve the
+# verified original Snakeout public mapping explicitly before changing images.
+dokku ports:set snakeout http:80:5000 https:443:5000
 if ! dokku git:from-image snakeout "$image"; then
     echo "Deploy failed; restoring $rollback (restores vulnerable runtime)." >&2
     dokku git:from-image snakeout "$rollback"

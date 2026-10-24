@@ -50,6 +50,11 @@ environment at runtime; do not bake production configuration into the image.
 The reviewed `scripts/deploy-image.sh ARTIFACT_DIRECTORY` accepts `image.tar`,
 `image.tar.sha256` (sha256sum format), `image.id` (sha256-prefixed), `image.tag`,
 and `source.commit`. Set `SNAKEOUT_DEPLOY_SLOT=approved` only with an exclusive slot.
+Run it in a persistent terminal/session with at least a 10-minute timeout. An SSH
+or agent timeout can terminate an in-progress Dokku rollout. If interrupted, inspect
+existing containers/logs first; never blindly start a duplicate deployment. For an
+agent harness, launch under a persistent supervisor and poll the log to completion.
+
 It checks checksums, loaded image identity/provenance and headroom, protects the
 old image, saves source privately, and imports the image. With empty original bare
 refs it saves explicit non-secret source from the running container instead of
@@ -63,7 +68,11 @@ on failure use the printed rollback tag even if the deploy command succeeded.
 gzip > archive.tar.gz`. Record SHA256, copy over SSH, and verify the remote
    archive hash before `docker load`. Verify loaded image ID matches the local ID.
    Allow room for both archive and expanded new layers, retaining the old image.
-3. `dokku git:from-image snakeout localhost/snakeout:<full git SHA>`.
+3. Preserve the verified original effective proxy mapping with
+   `dokku ports:set snakeout http:80:5000 https:443:5000` before import (the script
+   does this). Otherwise the Dockerfile importer detects external port 5000 from
+   EXPOSE and temporarily loses normal 80/443 routing. Then run
+   `dokku git:from-image snakeout localhost/snakeout:<full git SHA>`.
    Do not also push code to Dokku. No extra dependency/frontend build should run.
 4. Verify the actual running web container: Node v22.23.4, npm version, startup
    logs, no OOM/restart loop, public HTTPS/assets/stats/game creation/Socket.IO.
