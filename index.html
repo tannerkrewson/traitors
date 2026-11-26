@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-02CH6EK1T2"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+            gtag("config", "G-02CH6EK1T2");
+        </script>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Traitors: A Free Traitor Game to Play Online with Friends</title>
+        <meta
+            name="description"
+            content="Traitors is a free social deduction game for 5 to 10 players, inspired by The Resistance. Play online with friends on your phones, in the same room or over a video call. No app or sign-up."
+        />
+        <link rel="canonical" href="https://www.tannerkrewson.com/traitors/" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#0e0e11" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Traitors" />
+        <meta
+            property="og:title"
+            content="Traitors: a free traitor game to play online with friends"
+        />
+        <meta
+            property="og:description"
+            content="A social deduction game for 5 to 10 players. Some of you are traitors. Play on your phones, no app needed."
+        />
+        <meta
+            property="og:url"
+            content="https://www.tannerkrewson.com/traitors/"
+        />
+        <meta
+            property="og:image"
+            content="https://www.tannerkrewson.com/traitors/og.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "VideoGame",
+                "name": "Traitors",
+                "url": "https://www.tannerkrewson.com/traitors/",
+                "image": "https://www.tannerkrewson.com/traitors/og.png",
+                "description": "A free social deduction game for 5 to 10 players. A few players are secretly traitors who sabotage missions while the faithful try to find them.",
+                "genre": ["Social deduction", "Party game", "Hidden role"],
+                "gamePlatform": "Web browser",
+                "applicationCategory": "Game",
+                "playMode": "MultiPlayer",
+                "numberOfPlayers": {
+                    "@type": "QuantitativeValue",
+                    "minValue": 5,
+                    "maxValue": 10
+                },
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                },
+                "author": {
+                    "@type": "Person",
+                    "name": "Tanner Krewson",
+                    "url": "https://www.tannerkrewson.com/"
+                },
+                "isBasedOn": {
+                    "@type": "Game",
+                    "name": "The Resistance",
+                    "author": { "@type": "Person", "name": "Don Eskridge" }
+                }
+            }
+        </script>
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "How many players do you need for Traitors?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Traitors is for 5 to 10 players. Two to four of them are traitors, depending on the size of the group."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Do I need to download an app?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No. Everyone plays in their phone or computer's web browser through Rocketcrab. There is nothing to install and no account to create."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can we play over a video call?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. Talk on any video or voice call while each player uses their own device to vote. It also works with everyone in the same room."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is this the game from the TV show The Traitors?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No. Traitors is an unofficial game based on the board game The Resistance. Like the show, a few hidden traitors try to fool the faithful, but the game is played through missions and votes rather than eliminations."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is Traitors free?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. Traitors is free to play, has no ads, and is open source."
+                        }
+                    }
+                ]
+            }
+        </script>
+
+        <link rel="stylesheet" href="/src/client/main.css" />
+    </head>
+
+    <body>
+        <div
+            class="mx-auto flex min-h-screen max-w-2xl flex-col gap-14 px-5 py-10"
+        >
+            <header class="flex flex-col items-center gap-6 text-center">
+                <img src="/favicon.svg" alt="" class="size-16" />
+                <h1 class="so-h1 text-6xl">Traitors</h1>
+                <p class="text-xl text-base-content/90">
+                    A social deduction game for 5 to 10 friends. Some of you are
+                    traitors. Nobody knows who.
+                </p>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <a
+                        class="btn btn-primary btn-lg no-underline"
+                        href="https://rocketcrab.com/transfer/traitors"
+                        >Start a game</a
+                    >
+                    <a
+                        class="btn btn-outline btn-lg no-underline"
+                        href="https://rocketcrab.com/join"
+                        >Join a game</a
+                    >
+                </div>
+                <p class="section-label">
+                    Free, no app, no sign-up. Each player uses their own phone.
+                </p>
+            </header>
+
+            <main class="flex flex-col gap-12">
+                <section class="flex flex-col gap-4">
+                    <h2 class="so-h2">How it works</h2>
+                    <ol class="list-decimal space-y-3 pl-6">
+                        <li>
+                            Start a party on Rocketcrab and share the code with
+                            your friends. Pick Traitors and start the game.
+                        </li>
+                        <li>
+                            Each player secretly learns their role. Most of you
+                            are <strong>Faithful</strong>. A few are
+                            <strong>Traitors</strong>, and they know each other.
+                        </li>
+                        <li>
+                            Each round, a captain picks a team for a mission,
+                            and everyone votes on the team in the open.
+                        </li>
+                        <li>
+                            The team decides the mission in secret. One sabotage
+                            is enough to fail it, and nobody learns who did it.
+                        </li>
+                        <li>
+                            The Faithful win by passing three missions. The
+                            Traitors win by sabotaging three, or if five teams
+                            in a row are rejected.
+                        </li>
+                    </ol>
+                    <p>
+                        <a href="how-to-play">Read the full rules</a>
+                    </p>
+                </section>
+
+                <section class="flex flex-col gap-4">
+                    <h2 class="so-h2">A traitor game to play with friends</h2>
+                    <p>
+                        Traitors is all about the conversation. The game keeps
+                        track of roles, teams and votes on everyone's phone, so
+                        nobody has to sit out as a moderator and nobody can peek
+                        at the cards. A game takes about 20 to 30 minutes.
+                    </p>
+                    <ul class="grid gap-4 sm:grid-cols-2">
+                        <li class="card border border-base-content/20 p-5">
+                            <h3 class="font-display text-2xl">
+                                In the same room
+                            </h3>
+                            <p>
+                                Pass around accusations, not phones. Everyone
+                                votes on their own screen.
+                            </p>
+                        </li>
+                        <li class="card border border-base-content/20 p-5">
+                            <h3 class="font-display text-2xl">
+                                On a video call
+                            </h3>
+                            <p>
+                                Talk on Zoom, Discord or FaceTime and play in a
+                                browser tab alongside it.
+                            </p>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="flex flex-col gap-4">
+                    <h2 class="so-h2">Inspired by The Resistance</h2>
+                    <p>
+                        If you have played The Resistance or Avalon, you already
+                        know how to play. Traitors uses the same team sizes and
+                        the same mission rules, so it is an easy way to play a
+                        game like The Resistance online for free.
+                        <a href="the-resistance-online"
+                            >See how Traitors compares</a
+                        >.
+                    </p>
+                </section>
+
+                <section class="flex flex-col gap-4">
+                    <h2 class="so-h2">Questions</h2>
+                    <div class="flex flex-col gap-2">
+                        <details
+                            class="collapse-arrow collapse border border-base-content/20"
+                        >
+                            <summary class="collapse-title">
+                                How many players do you need?
+                            </summary>
+                            <p class="collapse-content">
+                                Traitors is for 5 to 10 players. Two to four of
+                                them are traitors, depending on the size of the
+                                group.
+                            </p>
+                        </details>
+                        <details
+                            class="collapse-arrow collapse border border-base-content/20"
+                        >
+                            <summary class="collapse-title">
+                                Do I need to download an app?
+                            </summary>
+                            <p class="collapse-content">
+                                No. Everyone plays in their phone or computer's
+                                web browser through Rocketcrab. There is nothing
+                                to install and no account to create.
+                            </p>
+                        </details>
+                        <details
+                            class="collapse-arrow collapse border border-base-content/20"
+                        >
+                            <summary class="collapse-title">
+                                Can we play over a video call?
+                            </summary>
+                            <p class="collapse-content">
+                                Yes. Talk on any video or voice call while each
+                                player uses their own device to vote. It also
+                                works with everyone in the same room.
+                            </p>
+                        </details>
+                        <details
+                            class="collapse-arrow collapse border border-base-content/20"
+                        >
+                            <summary class="collapse-title">
+                                Is this the game from the TV show The Traitors?
+                            </summary>
+                            <p class="collapse-content">
+                                No. Traitors is an unofficial game based on the
+                                board game The Resistance. Like the show, a few
+                                hidden traitors try to fool the faithful, but
+                                the game is played through missions and votes
+                                rather than eliminations.
+                            </p>
+                        </details>
+                        <details
+                            class="collapse-arrow collapse border border-base-content/20"
+                        >
+                            <summary class="collapse-title">
+                                Is Traitors free?
+                            </summary>
+                            <p class="collapse-content">
+                                Yes. Traitors is free to play, has no ads, and
+                                is open source.
+                            </p>
+                        </details>
+                    </div>
+                </section>
+            </main>
+
+            <footer
+                class="flex flex-wrap justify-center gap-x-4 gap-y-1 border-t border-base-content/20 pt-4 text-sm text-base-content/60"
+            >
+                <span
+                    >Traitors by
+                    <a href="https://www.tannerkrewson.com/">Tanner Krewson</a>
+                </span>
+                <a href="how-to-play">How to play</a>
+                <a href="https://github.com/tannerkrewson/traitors"
+                    >View on GitHub</a
+                >
+                <a href="https://www.buymeacoffee.com/tannerkrewson"
+                    >Buy Tanner a taco</a
+                >
+            </footer>
+        </div>
+    </body>
+</html>

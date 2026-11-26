@@ -4,10 +4,28 @@
     themes: luxury --default;
 }
 
-@import "@fontsource/cormorant-garamond/latin-600.css";
-@import "@fontsource/cormorant-garamond/latin-600-italic.css";
-@import "@fontsource/lato/latin-400.css";
-@import "@fontsource/lato/latin-700.css";
+/* woff2 only: every browser that runs the game supports it */
+@font-face {
+    font-family: "Cormorant Garamond";
+    font-weight: 600;
+    font-display: swap;
+    src: url("@fontsource/cormorant-garamond/files/cormorant-garamond-latin-600-normal.woff2")
+        format("woff2");
+}
+@font-face {
+    font-family: "Lato";
+    font-weight: 400;
+    font-display: swap;
+    src: url("@fontsource/lato/files/lato-latin-400-normal.woff2")
+        format("woff2");
+}
+@font-face {
+    font-family: "Lato";
+    font-weight: 700;
+    font-display: swap;
+    src: url("@fontsource/lato/files/lato-latin-700-normal.woff2")
+        format("woff2");
+}
 
 @theme {
     --font-sans: "Lato", ui-sans-serif, system-ui, sans-serif;
@@ -34,6 +52,11 @@
 
     a {
         @apply link link-hover;
+    }
+
+    /* links in running text need to look like links */
+    main a:not(.btn) {
+        @apply link;
     }
 }
 

@@ -14,7 +14,13 @@ export default defineConfig(({ mode }) => {
             emptyOutDir: !nova,
             copyPublicDir: !nova,
             rolldownOptions: {
-                input: nova ? "game.html" : ["game.html"],
+                input: nova
+                    ? "game.html"
+                    : [
+                          "index.html",
+                          "how-to-play.html",
+                          "the-resistance-online.html",
+                      ],
             },
         },
     };
