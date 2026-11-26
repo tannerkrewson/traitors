@@ -3,6 +3,7 @@
 // still decide whether a move is allowed.
 
 import { Round } from "./round.js";
+import { Banishment } from "./banishment.js";
 
 const seatOf = (round, id) => round.players.find((player) => player.id === id);
 
@@ -79,6 +80,7 @@ export function botMoves(state, partyId, random = Math.random) {
 }
 
 export function seatMoves(round, me, random = Math.random) {
+    if (round.mode === "banishment") return banishmentMoves(round, me, random);
     const waiting = round.playersBeingWaitedOn.includes(me.id);
     const mission = round.missions[round.missionNumber - 1];
     switch (round.phase) {
@@ -134,6 +136,12 @@ const PACE = {
     mission: [1, 2],
     drumroll: [0.5, 1.5],
     mission_results: [1.5, 3],
+    endgame: [1.5, 3],
+    round_table: [2, 4],
+    banishment: [1.5, 3],
+    night: [1.5, 3],
+    morning: [1.5, 3],
+    final: [1.5, 3],
 };
 
 // Run from the game's tick: the first bot with something to do waits a
@@ -192,7 +200,67 @@ function makeMove(round, bot, move) {
         case "missionVote":
             Round.missionVote(round, bot, vote);
             break;
+        case "doneViewing":
+            Banishment.done(round, bot, move.payload.phase);
+            break;
+        case "banishVote":
+            Banishment.banishVote(round, bot, move.payload.target);
+            break;
+        case "nightPick":
+            Banishment.nightPick(round, bot, move.payload.target);
+            break;
+        case "endgameVote":
+            Banishment.endgameVote(round, bot, move.payload.end);
+            break;
         default:
             Round.done(round, bot, round.phase);
+    }
+}
+
+// Banishment bots. The faithful distrust whoever voted out the last
+// faithful player; traitors vote and murder among the faithful, and back
+// each other up at night.
+function banishmentMoves(round, me, random) {
+    if (!me.alive || !round.playersBeingWaitedOn.includes(me.id)) return [];
+    const living = round.players.filter((player) => player.alive);
+    const pick = (list) => list[Math.floor(random() * list.length)];
+    const lastBanished = round.players.find((p) => p.id === round.banished);
+    const suspects = new Set(
+        lastBanished && !lastBanished.isTraitor
+            ? round.lastVotes
+                  .filter((vote) => vote.target === lastBanished.id)
+                  .map((vote) => vote.voter)
+            : [],
+    );
+
+    switch (round.phase) {
+        case "endgame":
+            return [
+                {
+                    type: "endgameVote",
+                    payload: { end: me.isTraitor || random() < 0.25 },
+                },
+            ];
+        case "round_table": {
+            const options = round.candidates
+                .filter((id) => id !== me.id)
+                .map((id) => round.players.find((p) => p.id === id));
+            let choices = me.isTraitor
+                ? options.filter((player) => !player.isTraitor)
+                : options.filter((player) => suspects.has(player.id));
+            if (!choices.length) choices = options;
+            return [
+                { type: "banishVote", payload: { target: pick(choices).id } },
+            ];
+        }
+        case "night": {
+            // back up a fellow traitor's choice, if there is one
+            const chosen = Object.values(round.nightPicks);
+            const faithful = living.filter((player) => !player.isTraitor);
+            const target = chosen.length ? chosen[0] : pick(faithful).id;
+            return [{ type: "nightPick", payload: { target } }];
+        }
+        default:
+            return [{ type: "doneViewing", payload: { phase: round.phase } }];
     }
 }

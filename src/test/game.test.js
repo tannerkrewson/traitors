@@ -1,10 +1,36 @@
 import { expect, test } from "vitest";
-import { game } from "../game/game.js";
+import { banishmentGame, game } from "../game/game.js";
 import { botMoves } from "../game/bots.js";
 
 const people = (n) =>
     Array.from({ length: n }, (_, i) => ({ id: `p${i}`, name: `P${i}` }));
 const as = (actor, players) => ({ players, leaderId: players[0].id, actor });
+const games = { sabotage: game, banishment: banishmentGame };
+function started(players, mode = "sabotage") {
+    const state = games[mode].createInitialState({ players });
+    if (!state.round) game.actions.startGame(state, as(players[0], players));
+    return state;
+}
+
+// play every seat with the bots' logic until the game is over
+function playOut(state, players) {
+    let winner = null;
+    for (let step = 0; step < 3000 && state.round; step++) {
+        for (const player of players) {
+            for (const move of botMoves(state, player.id)) {
+                game.actions[move.type](
+                    state,
+                    as(player, players),
+                    move.payload,
+                );
+            }
+        }
+        game.tick(state, { dt: 0.5 });
+        if (state.round) winner = state.round.winner || winner;
+    }
+    expect(state.round).toBeNull();
+    return winner;
+}
 
 test("waits in the lobby until there are 3 to 10 players", () => {
     const players = people(2);
@@ -24,42 +50,31 @@ test("waits in the lobby until there are 3 to 10 players", () => {
 });
 
 test("bots fill a small game and play it to the end", () => {
-    for (const humans of [3, 4]) {
-        for (let run = 0; run < 50; run++) {
-            const players = people(humans);
-            const state = game.createInitialState({ players });
-            game.actions.startGame(state, as(players[0], players));
-            const seats = state.round.players;
-            expect(seats).toHaveLength(5);
-            expect(seats.filter((seat) => seat.isBot)).toHaveLength(5 - humans);
-            const view = game.selectView(state, players[0]).round;
-            expect(view.players.filter((p) => p.isBot)).toHaveLength(
-                5 - humans,
-            );
-
-            let winner = null;
-            for (let step = 0; step < 3000 && state.round; step++) {
-                for (const player of players) {
-                    for (const move of botMoves(state, player.id)) {
-                        game.actions[move.type](
-                            state,
-                            as(player, players),
-                            move.payload,
-                        );
-                    }
-                }
-                game.tick(state, { dt: 0.5 });
-                if (state.round) winner = state.round.winner || winner;
+    for (const mode of ["sabotage", "banishment"]) {
+        for (const humans of [3, 4]) {
+            for (let run = 0; run < 30; run++) {
+                const players = people(humans);
+                const state = started(players, mode);
+                const seats = state.round.players;
+                expect(seats).toHaveLength(5);
+                expect(seats.filter((seat) => seat.isBot)).toHaveLength(
+                    5 - humans,
+                );
+                const view = game.selectView(state, players[0]).round;
+                expect(view.players.filter((p) => p.isBot)).toHaveLength(
+                    5 - humans,
+                );
+                expect(["traitor", "faithful"]).toContain(
+                    playOut(state, players),
+                );
             }
-            expect(state.round).toBeNull();
-            expect(["traitor", "faithful"]).toContain(winner);
         }
     }
 });
 
 test("a player who comes back gets their seat back", () => {
     const players = people(5);
-    const state = game.createInitialState({ players });
+    const state = started(players);
     const before = game.selectView(state, players[2]).you;
     game.playerLeft(state, {}, players[2]);
     expect(
@@ -77,7 +92,7 @@ test("a player who comes back gets their seat back", () => {
 
 test("rejects moves from the wrong player or a stale screen", () => {
     const players = people(5);
-    const state = game.createInitialState({ players });
+    const state = started(players);
     const outsider = { id: "x", name: "X" };
     game.playerJoined(state, {}, outsider);
     expect(() =>

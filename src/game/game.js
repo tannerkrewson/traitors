@@ -3,16 +3,20 @@
 //
 
 import { Round } from "./round.js";
+import { Banishment } from "./banishment.js";
 import { Player } from "./player.js";
 import { stepBots } from "./bots.js";
 
-// The Nova game definition. The state is plain JSON:
+// The Nova game definition, for one mode. Sabotage and Banishment are
+// separate games on Rocketcrab, built from this same code. The state is
+// plain JSON:
 //   players  everyone in the party right now, as { id, name }
+//   mode     "sabotage" (missions) or "banishment" (the round table)
 //   round    the game being played, or null in the lobby
 // Seats in a round have their own ids, so a newcomer can take over the
 // seat of a player who left.
 export const game = {
-    title: "Traitors",
+    title: "Traitors: Sabotage",
     apiVersion: 1,
     // Rocketcrab suggests a full table; 3 or 4 can still start, with bots
     minPlayers: 5,
@@ -20,9 +24,10 @@ export const game = {
     // only bots use the tick, and only while one of them is about to move
     tickRate: 2,
 
-    createInitialState(context) {
+    createInitialState(context, mode = "sabotage") {
         var state = {
             players: context.players.map(({ id, name }) => ({ id, name })),
+            mode,
             round: null,
             currentRoundNum: 1,
         };
@@ -59,13 +64,35 @@ export const game = {
         readyToViewResults: whenDone("drumroll"),
         doneViewingResults: whenDone("mission_results"),
 
+        // Banishment
+        doneViewing: inRound(
+            (round, player, payload) =>
+                Banishment.done(round, player, payload.phase),
+            "banishment",
+        ),
+        banishVote: inRound(
+            (round, player, payload) =>
+                Banishment.banishVote(round, player, payload.target),
+            "banishment",
+        ),
+        nightPick: inRound(
+            (round, player, payload) =>
+                Banishment.nightPick(round, player, payload.target),
+            "banishment",
+        ),
+        endgameVote: inRound(
+            (round, player, payload) =>
+                Banishment.endgameVote(round, player, payload.end),
+            "banishment",
+        ),
+
         // sent when a newcomer selects a person to replace
         replacePlayer(state, context, payload) {
             var round = state.round;
             if (!round || getSeat(round, context.actor.id)) {
                 throw new Error("You are already playing.");
             }
-            Round.replacePlayer(
+            rules(round).replacePlayer(
                 round,
                 payload.playerIdToReplace,
                 context.actor,
@@ -93,10 +120,15 @@ export const game = {
     selectView(state, viewer) {
         var round = state.round;
         var you = round && getSeat(round, viewer.id);
+        var view =
+            round && round.mode === "banishment"
+                ? getBanishmentState
+                : getState;
         return {
             lobby: state.players,
+            mode: state.mode,
             you: you ? Player.getJson(you, true) : null,
-            round: round && getState(round, you),
+            round: round && view(round, you),
         };
     },
 
@@ -108,7 +140,7 @@ export const game = {
         var seat = state.round && getSeat(state.round, player.id);
         if (seat) {
             Player.replaceConnection(seat, player);
-            Round.checkIfDone(state.round);
+            rules(state.round).checkIfDone(state.round);
             endIfOver(state);
         }
     },
@@ -117,9 +149,21 @@ export const game = {
         state.players = state.players.filter(({ id }) => id !== player.id);
 
         var seat = state.round && getSeat(state.round, player.id);
-        if (seat) Round.findReplacementFor(state.round, seat);
+        if (seat) rules(state.round).findReplacementFor(state.round, seat);
     },
 };
+
+// Banishment is a separate game on Rocketcrab, built from the same code
+export const banishmentGame = {
+    ...game,
+    title: "Traitors: Banishment",
+    createInitialState: (context) =>
+        game.createInitialState(context, "banishment"),
+};
+
+export function createGame(mode) {
+    return mode === "banishment" ? banishmentGame : game;
+}
 
 // the rules are written for 5 to 10 players; bots fill the table up to 5
 var FULL_TABLE = 5;
@@ -141,8 +185,17 @@ function startNewRound(state) {
         bot.isBot = true;
         players.push(bot);
     }
-    state.round = Round(state.currentRoundNum++, players);
-    Round.startRound(state.round);
+    if (state.mode === "banishment") {
+        state.round = Banishment(state.currentRoundNum++, players);
+    } else {
+        state.round = Round(state.currentRoundNum++, players);
+        Round.startRound(state.round);
+    }
+}
+
+// the functions that run the round's mode
+function rules(round) {
+    return round.mode === "banishment" ? Banishment : Round;
 }
 
 function getSeat(round, partyId) {
@@ -154,11 +207,14 @@ function endIfOver(state) {
     if (state.round && state.round.ended) state.round = null;
 }
 
-function inRound(handler) {
+function inRound(handler, mode = "sabotage") {
     return function (state, context, payload) {
         var round = state.round;
         var player = round && getSeat(round, context.actor.id);
         if (!player) throw new Error("You are not in this game.");
+        if ((round.mode || "sabotage") !== mode) {
+            throw new Error("That's not part of this game.");
+        }
         handler(round, player, payload || {});
         endIfOver(state);
     };
@@ -212,6 +268,64 @@ function getState(round, you) {
         rejectedTeams: round.rejectedTeams,
         traitorCount: round.traitorCount,
         waitingList: byId(round.playersBeingWaitedOn),
+        winner: round.winner,
+    };
+}
+
+function getBanishmentState(round, you) {
+    var dead = !!(you && !you.alive);
+    // traitors know each other; the eliminated watch with everything shown
+    var seeTraitors = !!round.winner || dead || !!(you && you.isTraitor);
+
+    var players = round.players.map((player) => {
+        var json = Player.getJson(player, seeTraitors || player === you);
+        json.alive = player.alive;
+        // a banished or murdered player's role is public
+        if (!player.alive) {
+            json.fate = player.fate;
+            json.isTraitor = player.isTraitor;
+        }
+        return json;
+    });
+    var byId = (id) => players.find((player) => player.id === id) || null;
+    var revealVotes =
+        round.phase === "banishment" ||
+        (round.phase === "round_table" && round.revote);
+
+    return {
+        mode: "banishment",
+        phase: round.phase,
+        day: round.day,
+        players,
+        traitorCount: round.traitorCount,
+        candidates: round.candidates.map(byId),
+        waitingList: round.playersBeingWaitedOn.map(byId),
+        disconnectedList: players.filter(
+            (player) => !player.isConnected && player.alive,
+        ),
+        revote: round.revote,
+        lastVotes: revealVotes
+            ? round.lastVotes.map(({ voter, target }) => ({
+                  voter: byId(voter),
+                  target: byId(target),
+              }))
+            : [],
+        myVote:
+            you && round.phase === "round_table"
+                ? byId(round.votes[you.id])
+                : null,
+        banished: byId(round.banished),
+        murdered: byId(round.murdered),
+        // only the traitors learn who joined them
+        recruited: seeTraitors ? byId(round.recruited) : null,
+        recruiting: seeTraitors && !!round.recruiting,
+        nightPicks: seeTraitors
+            ? Object.entries(round.nightPicks).map(([traitor, target]) => ({
+                  traitor: byId(Number(traitor)),
+                  target: byId(target),
+              }))
+            : [],
+        lastEndVotes: round.lastEndVotes,
         winner: round.winner,
     };
 }
