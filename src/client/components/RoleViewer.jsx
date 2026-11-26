@@ -24,7 +24,9 @@ export default class RoleViewer extends Component {
                 <>
                     <p className="so-h2 text-primary">You are Faithful.</p>
                     <p>
-                        Find the traitors before they sabotage three missions.
+                        {this.props.mode === "banishment"
+                            ? "Find and banish the traitors before they pick you all off."
+                            : "Find the traitors before they sabotage three missions."}
                     </p>
                 </>
             );

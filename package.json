@@ -16,7 +16,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && vite build --mode nova && node -e \"if (require('fs').statSync('dist/game.html').size > 2 * 1024 * 1024) throw Error('Nova HTML exceeds 2 MiB')\"",
+        "build": "vite build && vite build --mode nova && vite build --mode nova-banishment && node -e \"for (const f of ['game', 'banishment']) if (require('fs').statSync('dist/' + f + '.html').size > 2 * 1024 * 1024) throw Error(f + '.html exceeds 2 MiB')\"",
         "test": "vite build --mode nova && vitest run",
         "format": "oxfmt --check",
         "lint": "oxlint",

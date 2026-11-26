@@ -76,10 +76,13 @@ export default class Lobby extends Component {
                         <p className="mt-1 text-base-content/80">
                             Traitors is best with 5 or more people. With{" "}
                             {numPlayersInLobby}, bots take the other seats so
-                            you still get a full game. They vote and go on
-                            missions, and one might be a traitor, but they can't
-                            argue their case and they're easier to read. Expect
-                            a lighter, quicker game.
+                            you still get a full game. They vote
+                            {this.props.mode === "banishment"
+                                ? " at the round table"
+                                : " and go on missions"}
+                            , and one might be a traitor, but they can't argue
+                            their case and they're easier to read. Expect a
+                            lighter, quicker game.
                         </p>
                     </div>
                 )}

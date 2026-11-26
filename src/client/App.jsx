@@ -4,6 +4,7 @@ import Footer from "./components/Footer";
 import Loading from "./components/Loading";
 import Lobby from "./components/Lobby";
 import Replace from "./components/Replace";
+import Banishment from "./components/Banishment";
 import StartPage from "./components/StartPage";
 import Waiting from "./components/Waiting";
 import SelectionPhase from "./components/SelectionPhase";
@@ -42,7 +43,10 @@ export default class App extends Component {
 
             // between games
             if (!round) {
-                self.changePage(Lobby, { players: data.lobby });
+                self.changePage(Lobby, {
+                    players: data.lobby,
+                    mode: data.mode,
+                });
                 return;
             }
 
@@ -62,6 +66,12 @@ export default class App extends Component {
             // the party leader sends the game's analytics events
             me.isAdmin =
                 self.server.nova.player?.id === self.server.nova.leaderId;
+
+            // Banishment's screens all live in one component
+            if (round.mode === "banishment") {
+                self.changePage(Banishment, data);
+                return;
+            }
 
             //determine if the server is waiting on us
             var isWaiting = (function () {

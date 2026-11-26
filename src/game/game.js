@@ -127,7 +127,7 @@ export const game = {
         return {
             lobby: state.players,
             mode: state.mode,
-            you: you ? Player.getJson(you, true) : null,
+            you: you ? getYou(you) : null,
             round: round && view(round, you),
         };
     },
@@ -196,6 +196,16 @@ function startNewRound(state) {
 // the functions that run the round's mode
 function rules(round) {
     return round.mode === "banishment" ? Banishment : Round;
+}
+
+// your own seat, with your role and, in Banishment, whether you're still in
+function getYou(you) {
+    var json = Player.getJson(you, true);
+    if (you.alive !== undefined) {
+        json.alive = you.alive;
+        json.fate = you.fate;
+    }
+    return json;
 }
 
 function getSeat(round, partyId) {

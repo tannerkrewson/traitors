@@ -61,6 +61,22 @@ Connection.prototype.tryReplace = function (data) {
     return this.send("replacePlayer", data);
 };
 
+Connection.prototype.doneViewing = function (phase) {
+    return this.send("doneViewing", { phase });
+};
+
+Connection.prototype.banishVote = function (player) {
+    return this.send("banishVote", { target: player.id });
+};
+
+Connection.prototype.nightPick = function (player) {
+    return this.send("nightPick", { target: player.id });
+};
+
+Connection.prototype.endgameVote = function (end) {
+    return this.send("endgameVote", { end });
+};
+
 Connection.prototype.endGame = function () {
     return this.send("endGame");
 };
