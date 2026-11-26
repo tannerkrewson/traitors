@@ -1,25 +1,28 @@
-# Snakeout 🐍
+# Traitors
 
-#### Play now: [snakeout.tannerkrewson.com](https://snakeout.tannerkrewson.com/)
+#### Play now: [tannerkrewson.com/traitors](https://www.tannerkrewson.com/traitors/)
+
+A free social deduction game for 5 to 10 players, based on The Resistance.
+Most players are Faithful; a few are Traitors who sabotage missions.
+Formerly known as Snakeout.
 
 ## About
 
-Snakeout was made using React, Socket.io, and Express.
+Traitors runs as a hosted [Nova](https://rocketcrab.com) game: `game.html`
+builds to one self-contained file that Rocketcrab loads into each player's
+party. The rules live in `src/game` and the React screens in `src/client`.
+The landing and rules pages are static HTML, published with the game on
+GitHub Pages.
 
-## Quick Start
+## Quick start
 
 ```bash
-# Install dependencies
 npm install
-
-# Run unit tests
-npm test
-
-# Start development server
-npm run dev
-
-# Start production server
-npm start
+npm run dev     # the site at http://localhost:5173/traitors/
+npm test        # rules scenarios and a browser test of the built game
+npm run build   # dist/ for GitHub Pages, including dist/game.html
 ```
 
-If `NODE_ENV=development`, you can automatically join the `ffff` dev lobby by navigating to `localhost:3000/?dev`.
+To try a change in a real party, upload `dist/game.html` in the
+[Rocketcrab editor](https://rocketcrab.com/editor) and add players in its
+test arena.
