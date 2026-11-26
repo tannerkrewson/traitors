@@ -102,11 +102,11 @@ function Demo() {
     }, [lines]);
 
     return (
-        <div className="grid items-start gap-6 md:grid-cols-[24rem_1fr]">
+        <div className="grid items-start gap-6 md:grid-cols-[1fr_24rem]">
             <div className="demo-phone h-[42rem] overflow-y-auto rounded-[2rem] border border-base-content/15 bg-base-100 shadow-2xl">
                 <App />
             </div>
-            <aside className="order-first flex h-56 flex-col gap-3 rounded-box bg-base-200 p-4 md:order-none md:h-[42rem]">
+            <aside className="order-first flex h-56 flex-col gap-3 rounded-box bg-base-200 p-4 md:h-[42rem]">
                 <h2 className="font-display text-2xl font-semibold">
                     The table
                 </h2>
