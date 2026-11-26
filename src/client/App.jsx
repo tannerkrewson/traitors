@@ -19,17 +19,19 @@ import Connection from "./utils/Connection";
 export default class App extends Component {
     constructor(props) {
         super(props);
+        // the party's Nova, or a practice game's stand-in
+        this.nova = props.nova || window.nova;
         this.state = {
             page: Loading,
             error: "",
-            connection: window.nova && window.nova.connectionStatus,
+            connection: this.nova && this.nova.connectionStatus,
         };
 
         this.changePage = (page, pageProps) => {
             this.setState({ page, pageProps });
         };
 
-        if (!window.nova) return;
+        if (!this.nova) return;
 
         var self = this;
         this.server = new Connection(function (data) {
@@ -162,17 +164,17 @@ export default class App extends Component {
                     }
                     break;
             }
-        });
+        }, this.nova);
 
         this.server.onError = (error) =>
             this.setState({ error: error.message });
-        window.nova.onConnectionChange((connection) =>
+        this.nova.onConnectionChange((connection) =>
             this.setState({ connection }),
         );
     }
 
     componentDidMount() {
-        if (window.nova) window.nova.ready();
+        if (this.nova) this.nova.ready();
     }
 
     render() {

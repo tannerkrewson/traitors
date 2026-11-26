@@ -130,8 +130,18 @@
         @apply min-h-full pt-6;
     }
 
-    .demo-phone footer {
+    .demo-phone footer,
+    .practice footer {
         display: none !important;
+    }
+
+    .practice .main-content {
+        @apply min-h-0 pt-4;
+    }
+
+    /* the practice bar already says where you are */
+    .practice #traitors > h1 {
+        display: none;
     }
 
     .section-label {

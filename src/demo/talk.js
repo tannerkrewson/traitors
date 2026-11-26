@@ -31,6 +31,8 @@ export function createTalk(humanId, random = Math.random) {
         const say = (player, text) =>
             lines.push({ from: player.name, text: capitalize(text) });
         const event = (text) => lines.push({ kind: "event", text });
+        const gameOver = (text) =>
+            lines.push({ kind: "event", text, winner: round.winner });
         const guide = (key, text) => {
             if (explained.has(key)) return;
             explained.add(key);
@@ -109,7 +111,7 @@ export function createTalk(humanId, random = Math.random) {
                 const approved = votes.filter((v) => v.vote).length;
                 const passed = approved > votes.length - approved;
                 if (round.winner) {
-                    event(
+                    gameOver(
                         "Five teams in a row were rejected. The traitors win.",
                     );
                     break;
@@ -222,7 +224,7 @@ export function createTalk(humanId, random = Math.random) {
                 }
                 if (round.winner) {
                     const traitors = round.players.filter((p) => p.isTraitor);
-                    event(
+                    gameOver(
                         `${round.winner === "traitor" ? "The traitors" : "The faithful"} win. The traitors were ${names(traitors)}.`,
                     );
                 }
