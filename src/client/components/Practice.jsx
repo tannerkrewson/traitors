@@ -6,8 +6,8 @@ import TableLine from "../../demo/TableLine.jsx";
 
 // A practice game over the lobby. It runs only on this device and never
 // touches the party, and it goes away when the real game starts.
-export default function Practice({ waiting, onClose }) {
-    const [practice] = useState(createPractice);
+export default function Practice({ mode, waiting, onClose }) {
+    const [practice] = useState(() => createPractice(mode));
     const [line, setLine] = useState(null);
 
     useEffect(() => {

@@ -40,7 +40,120 @@ export function createTalk(humanId, random = Math.random) {
         };
 
         const newGame = !before || before.roundNumber !== round.roundNumber;
-        if (!newGame && before.phase === round.phase) return lines;
+        const tie = !newGame && round.revote && !before.revote;
+        if (!newGame && before.phase === round.phase && !tie) return lines;
+
+        if (round.mode === "banishment") {
+            const living = round.players.filter((p) => p.alive);
+            const livingBots = bots.filter((p) => p.alive);
+            switch (round.phase) {
+                case "start":
+                    event(
+                        `A new game with ${round.players.length} players and ${round.traitorCount === 1 ? "1 traitor" : round.traitorCount + " traitors"}.`,
+                    );
+                    guide(
+                        "start",
+                        "Everyone has a secret role. Hold the button to see yours. Each day the table banishes someone, and each night the traitors murder someone.",
+                    );
+                    break;
+                case "endgame":
+                    guide(
+                        "endgame",
+                        "With four or fewer left, you can end the game. It only ends if everyone agrees, and any traitor still here wins it.",
+                    );
+                    break;
+                case "round_table": {
+                    if (tie) {
+                        event("It's a tie. The table votes again.");
+                        break;
+                    }
+                    guide(
+                        "round_table",
+                        "Everyone votes to banish someone. Talk it through first: who's acting strange?",
+                    );
+                    const accuser = pickOne(livingBots, random);
+                    const accused = pickOne(
+                        living.filter((p) => p !== accuser),
+                        random,
+                    );
+                    if (accuser && accused && random() < 0.8) {
+                        say(
+                            accuser,
+                            pickOne(
+                                [
+                                    `I don't trust ${name(accused)}.`,
+                                    `${capitalize(name(accused))} has been far too quiet.`,
+                                    `Something about ${name(accused)} feels off to me.`,
+                                ],
+                                random,
+                            ),
+                        );
+                    }
+                    break;
+                }
+                case "banishment": {
+                    const banished = seat(round.banished);
+                    if (!banished) {
+                        event("The table couldn't agree. No one is banished.");
+                        break;
+                    }
+                    event(
+                        `${capitalize(name(banished))} ${isHuman(banished) ? "are" : "is"} banished, and ${isHuman(banished) ? "were" : "was"} ${banished.isTraitor ? "a traitor" : "faithful"}.`,
+                    );
+                    const reactor = pickOne(livingBots, random);
+                    if (reactor) {
+                        say(
+                            reactor,
+                            banished.isTraitor
+                                ? "Got one! But I doubt they were alone."
+                                : "We got it wrong. The traitors are laughing right now.",
+                        );
+                    }
+                    break;
+                }
+                case "night":
+                    guide(
+                        human && human.isTraitor && human.alive
+                            ? "night-traitor"
+                            : "night",
+                        human && human.isTraitor && human.alive
+                            ? "Night falls. Choose who to murder. In the morning, act surprised."
+                            : "Night falls. The traitors are choosing who to murder.",
+                    );
+                    break;
+                case "morning": {
+                    const murdered = seat(round.murdered);
+                    if (murdered) {
+                        event(
+                            `${capitalize(name(murdered))} ${isHuman(murdered) ? "were" : "was"} murdered in the night.`,
+                        );
+                        const mourner = pickOne(livingBots, random);
+                        if (mourner) {
+                            say(
+                                mourner,
+                                `Poor ${name(murdered)}. Whoever did this is sitting right here.`,
+                            );
+                        }
+                    } else {
+                        event("No one was murdered last night.");
+                        guide(
+                            "recruit",
+                            "No murder means the traitors recruited someone instead. One of the faithful has switched sides.",
+                        );
+                    }
+                    break;
+                }
+                case "final": {
+                    const traitors = round.players.filter((p) => p.isTraitor);
+                    gameOver(
+                        `${round.winner === "traitor" ? "The traitors" : "The faithful"} win. The traitors were ${names(traitors)}.`,
+                    );
+                    break;
+                }
+            }
+            return lines;
+        }
+
         const mission = round.missions[round.missionNumber - 1];
 
         switch (round.phase) {

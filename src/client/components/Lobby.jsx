@@ -108,6 +108,7 @@ export default class Lobby extends Component {
                 </div>
                 {this.state.practicing && (
                     <Practice
+                        mode={this.props.mode}
                         waiting={numPlayersInLobby}
                         onClose={() => this.setState({ practicing: false })}
                     />

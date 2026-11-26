@@ -1,4 +1,4 @@
-import { game } from "../game/game.js";
+import { createGame } from "../game/game.js";
 import { botMoves } from "../game/bots.js";
 import { createLocalParty } from "./nova.js";
 import { createTalk } from "./talk.js";
@@ -22,10 +22,17 @@ const PACE = {
     mission: [1500, 3000],
     drumroll: [1000, 2500],
     mission_results: [3000, 5000],
+    endgame: [2000, 4000],
+    round_table: [3000, 6000],
+    banishment: [2500, 4500],
+    night: [2000, 4000],
+    morning: [2500, 4500],
+    final: [2500, 4500],
 };
 const between = ([least, most]) => least + Math.random() * (most - least);
 
-export function createPractice() {
+export function createPractice(mode = "sabotage") {
+    const game = createGame(mode);
     const party = createLocalParty(game, [HUMAN, ...BOTS], HUMAN.id);
     const talk = createTalk(HUMAN.id);
     const listeners = new Set();
@@ -55,10 +62,13 @@ export function createPractice() {
         if (!round) return;
         for (const bot of BOTS) {
             for (const next of botMoves(state, bot.id)) {
+                // one move per bot per screen of the game
                 const key = [
                     state.currentRoundNum,
                     round.missionNumber,
                     round.rejectedTeams,
+                    round.day,
+                    round.revote,
                     round.phase,
                     bot.id,
                 ].join(":");
