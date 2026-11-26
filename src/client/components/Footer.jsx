@@ -11,7 +11,12 @@ export default class Footer extends Component {
                     </a>
                 </span>
                 <a
-                    href="https://www.tannerkrewson.com/traitors/how-to-play"
+                    href={
+                        // each game's page says which game it is
+                        document.documentElement.dataset.mode === "banishment"
+                            ? "https://www.tannerkrewson.com/traitors/banishment"
+                            : "https://www.tannerkrewson.com/traitors/how-to-play"
+                    }
                     target="_blank"
                 >
                     How to play
