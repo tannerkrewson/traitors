@@ -65,7 +65,7 @@ on failure use the printed rollback tag even if the deploy command succeeded.
    source. Preserve the current image with a unique `snakeout-rollback:<timestamp>`
    tag before importing anything. Do not prune it or any other app image.
 2. Export the validated image with `podman save --format docker-archive IMAGE |
-gzip > archive.tar.gz`. Record SHA256, copy over SSH, and verify the remote
+   gzip > archive.tar.gz`. Record SHA256, copy over SSH, and verify the remote
    archive hash before `docker load`. Verify loaded image ID matches the local ID.
    Allow room for both archive and expanded new layers, retaining the old image.
 3. Preserve the verified original effective proxy mapping with

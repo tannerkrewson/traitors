@@ -37,12 +37,12 @@ function Round(roundNumber, code, players, onEnd) {
     for (var i = 1; i <= 5; i++) {
         var numPlayersForMission = getNumberOfPlayersOnMission(
             this.players.length,
-            i
+            i,
         );
         var newMission = new Mission(
             i,
             numPlayersForMission,
-            this.players.length
+            this.players.length,
         );
         this.missions.push(newMission);
     }
@@ -101,7 +101,7 @@ Round.prototype.waitFor = function (
     playersToWaitOn,
     eventToWaitFor,
     onPlayerDone,
-    onAllDone
+    onAllDone,
 ) {
     this.playersBeingWaitedOn = playersToWaitOn.slice();
     this.onAllDone = onAllDone;
@@ -114,7 +114,7 @@ Round.prototype.waitFor = function (
     // we get 'em because we need 'em
     if (!this.playersBeingWaitedOn[0].socket) {
         this.playersBeingWaitedOn = this.getPlayerListWithSockets(
-            this.playersBeingWaitedOn
+            this.playersBeingWaitedOn,
         );
     }
 
@@ -389,7 +389,7 @@ Round.prototype.showStartPage = function () {
         function () {
             //ran once everyone is ready to start
             self.startSelectionPhase();
-        }
+        },
     );
 
     this.sendStateToAll();
@@ -471,7 +471,7 @@ Round.prototype.processResultsOfVote = function (wasVoteSuccessful) {
                 self.assignNewCaptain();
                 self.startSelectionPhase();
             }
-        }
+        },
     );
 
     //send the results
@@ -489,14 +489,15 @@ Round.prototype.startMissionPhase = function () {
     // (playersToWaitOn, eventToWaitFor, onPlayerDone, onAllDone)
     // *onAllDone is not used because it is handled in the mission object
     var self = this;
-    this.waitFor(thisMission.playersOnMission, "missionVote", function (
-        player,
-        data
-    ) {
-        //ran when a single player is done
-        thisMission.addMissionVote(player.id, data.vote);
-        self.sendStateToAll();
-    });
+    this.waitFor(
+        thisMission.playersOnMission,
+        "missionVote",
+        function (player, data) {
+            //ran when a single player is done
+            thisMission.addMissionVote(player.id, data.vote);
+            self.sendStateToAll();
+        },
+    );
 
     this.changePhase("mission");
     this.sendStateToAll();
@@ -528,7 +529,7 @@ Round.prototype.startDrumroll = function (wasMissionSuccessful) {
             // ran once everyone is done
             this.processResultsOfMission(wasMissionSuccessful);
             this.sendMissionResults();
-        }
+        },
     );
 
     this.changePhase("drumroll");
@@ -558,7 +559,7 @@ Round.prototype.sendMissionResults = function () {
                 // game over!
                 self.onEnd();
             }
-        }
+        },
     );
 
     // send the results

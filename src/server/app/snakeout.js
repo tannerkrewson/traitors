@@ -48,7 +48,7 @@ Snakeout.prototype.generateCode = function () {
         var possible = "abcdefghijklmnopqrstuvwxyz";
         for (var i = 0; i < 4; i++) {
             code += possible.charAt(
-                Math.floor(Math.random() * possible.length)
+                Math.floor(Math.random() * possible.length),
             );
         }
         //make sure the code is not already in use

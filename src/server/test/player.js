@@ -68,7 +68,7 @@ test("sendThen", function (t) {
         "eventToSend-test2",
         "asdfghjkl",
         "receivedEvent-test",
-        runMe
+        runMe,
     );
     t.equal(emitResults.eventName, "eventToSend-test2");
 

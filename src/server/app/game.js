@@ -53,7 +53,7 @@ Game.prototype.startNewRound = function () {
             //ran when the round ends
             self.sendUpdatedPlayersList();
             self.inProgress = false;
-        }
+        },
     );
 
     this.currentRound.startRound();
@@ -81,7 +81,7 @@ Game.prototype.initPlayer = function (newPlayer) {
             "https://rocketcrab.com/transfer/snakeout/" +
                 this.uuid +
                 "/?name=" +
-                newPlayer.name
+                newPlayer.name,
         );
     });
 };
