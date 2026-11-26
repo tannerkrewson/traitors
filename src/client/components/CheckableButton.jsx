@@ -12,7 +12,7 @@ export default class CheckableButton extends Component {
                         "btn btn-block pointer-events-none " +
                         (this.props.checked
                             ? "btn-primary"
-                            : "btn-outline opacity-50")
+                            : "btn-neutral opacity-50")
                     }
                 >
                     {this.props.children}

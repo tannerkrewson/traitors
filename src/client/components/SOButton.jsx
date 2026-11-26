@@ -6,7 +6,7 @@ export default class SOButton extends Component {
         if (this.props.isGroup) {
             groupClass = "btn-block";
         }
-        var styleClass = this.props.primary ? "btn-primary" : "btn-outline";
+        var styleClass = this.props.primary ? "btn-primary" : "btn-neutral";
         return (
             <button
                 type={this.props.isSubmit ? "submit" : "button"}

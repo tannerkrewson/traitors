@@ -45,8 +45,10 @@ function RejectedTeams({ count }) {
                 <span
                     key={n}
                     className={
-                        "size-2.5 rounded-full border border-error " +
-                        (n <= count ? "bg-error" : "")
+                        "size-2.5 rounded-full border " +
+                        (n <= count
+                            ? "border-error bg-error"
+                            : "border-base-content/30")
                     }
                 />
             ))}

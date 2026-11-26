@@ -4,12 +4,12 @@ const STATUS = {
     faithful: {
         mark: "✓",
         label: "passed",
-        className: "border-success text-success",
+        className: "border-primary bg-primary text-primary-content",
     },
     traitor: {
         mark: "✕",
         label: "failed",
-        className: "border-error text-error",
+        className: "border-error bg-error text-error-content",
     },
 };
 
@@ -17,14 +17,14 @@ export default class MissionBox extends Component {
     render() {
         var status = STATUS[this.props.status];
         var inProgress = this.props.inProgress
-            ? "ring-2 ring-base-content ring-offset-2 ring-offset-base-100"
+            ? "ring-2 ring-primary ring-offset-2 ring-offset-base-100"
             : "";
         var caption = this.props.twoFails ? "2 fails" : "players";
         return (
             <li
                 className={
                     "mission-box flex size-16 flex-col items-center justify-center rounded-full border text-[0.65rem] leading-none " +
-                    (status ? status.className : "border-base-content/30") +
+                    (status ? status.className : "border-base-content/20") +
                     " " +
                     inProgress
                 }

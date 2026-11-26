@@ -1,7 +1,43 @@
 @import "tailwindcss";
 @source "../../*.html";
 @plugin "daisyui" {
-    themes: luxury --default;
+    themes: false;
+}
+
+/* Candlelight: warm near-black, parchment text, one brass accent for
+   actions, and crimson only for what belongs to the traitors. */
+@plugin "daisyui/theme" {
+    name: "traitors";
+    default: true;
+    color-scheme: dark;
+    --color-base-100: oklch(17% 0.006 60);
+    --color-base-200: oklch(21% 0.008 60);
+    --color-base-300: oklch(26% 0.01 60);
+    --color-base-content: oklch(91% 0.018 85);
+    --color-primary: oklch(79% 0.105 80);
+    --color-primary-content: oklch(20% 0.02 60);
+    --color-secondary: oklch(79% 0.105 80);
+    --color-secondary-content: oklch(20% 0.02 60);
+    --color-accent: oklch(79% 0.105 80);
+    --color-accent-content: oklch(20% 0.02 60);
+    --color-neutral: oklch(27% 0.01 60);
+    --color-neutral-content: oklch(91% 0.018 85);
+    --color-info: oklch(75% 0.06 230);
+    --color-info-content: oklch(20% 0.02 230);
+    --color-success: oklch(79% 0.105 80);
+    --color-success-content: oklch(20% 0.02 60);
+    --color-warning: oklch(80% 0.12 75);
+    --color-warning-content: oklch(20% 0.02 60);
+    --color-error: oklch(57% 0.19 25);
+    --color-error-content: oklch(96% 0.01 25);
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.75rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
 }
 
 /* woff2 only: every browser that runs the game supports it */
@@ -43,7 +79,7 @@
         background-color: var(--color-base-100);
         background-image: radial-gradient(
             ellipse at top,
-            color-mix(in oklab, var(--color-accent) 35%, transparent),
+            color-mix(in oklab, var(--color-primary) 9%, transparent),
             transparent 60%
         );
         background-attachment: fixed;
@@ -56,13 +92,13 @@
 
     /* links in running text need to look like links */
     main a:not(.btn) {
-        @apply link;
+        @apply link decoration-primary/60 underline-offset-2;
     }
 }
 
 @layer components {
     .so-h1 {
-        @apply font-display text-5xl font-semibold tracking-wide text-base-content;
+        @apply font-display text-5xl font-semibold tracking-wide text-primary;
     }
 
     .so-h2 {
@@ -90,6 +126,6 @@
     }
 
     .section-label {
-        @apply text-sm text-base-content/60;
+        @apply text-sm text-base-content/65;
     }
 }

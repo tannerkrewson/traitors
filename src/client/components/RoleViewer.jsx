@@ -22,7 +22,7 @@ export default class RoleViewer extends Component {
         if (this.props.role === "faithful") {
             roleMessage = (
                 <>
-                    <p className="so-h2">You are Faithful.</p>
+                    <p className="so-h2 text-primary">You are Faithful.</p>
                     <p>
                         Find the traitors before they sabotage three missions.
                     </p>
@@ -58,13 +58,13 @@ export default class RoleViewer extends Component {
                 {this.state.show && (
                     // shown above the button only while it is held, so
                     // nobody can read it over your shoulder later
-                    <div className="popover-body card absolute bottom-full left-1/2 z-10 mb-3 w-72 -translate-x-1/2 border border-base-content/30 bg-base-200 p-5 shadow-xl">
+                    <div className="popover-body card absolute bottom-full left-1/2 z-10 mb-3 w-72 -translate-x-1/2 border border-base-content/15 bg-base-300 p-5 shadow-2xl">
                         {roleMessage}
                     </div>
                 )}
                 <button
                     type="button"
-                    className="btn btn-outline btn-lg w-full select-none"
+                    className="btn btn-neutral btn-lg w-full select-none"
                     onMouseDown={this.showPopup.bind(this)}
                     onMouseUp={this.hidePopup.bind(this)}
                     onTouchStart={this.showPopup.bind(this)}
