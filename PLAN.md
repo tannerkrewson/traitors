@@ -1,8 +1,9 @@
 # Plan
 
-Traitors runs as a hosted Nova game on GitHub Pages at
-`https://www.tannerkrewson.com/traitors/`, listed on Rocketcrab as
-`traitors`. `snakeout.tannerkrewson.com` 301s there through Cloudflare
+Traitors is two hosted Nova games built from one codebase and served from
+GitHub Pages at `https://www.tannerkrewson.com/traitors/`: Sabotage
+(`game.html`, listed on Rocketcrab as `traitors`) and Banishment
+(`game-banishment.html`, listed as `traitors-banishment`). `snakeout.tannerkrewson.com` 301s there through Cloudflare
 redirect rules on the `tannerkrewson.com` zone.
 
 # Deferred
