@@ -14,7 +14,8 @@ import { stepBots } from "./bots.js";
 export const game = {
     title: "Traitors",
     apiVersion: 1,
-    minPlayers: 3,
+    // Rocketcrab suggests a full table; 3 or 4 can still start, with bots
+    minPlayers: 5,
     maxPlayers: 10,
     // only bots use the tick, and only while one of them is about to move
     tickRate: 2,
