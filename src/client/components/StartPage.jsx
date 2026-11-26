@@ -31,7 +31,7 @@ export default class StartPage extends Component {
                     in secret, then begin.
                 </p>
                 <RoleViewer role={ourRole} players={data.players} me={me} />
-                <p className="section-label">Missions</p>
+                <p className="section-label">Team size for each mission</p>
                 <MissionBar
                     missions={data.missions}
                     numberOfPlayers={data.players.length}

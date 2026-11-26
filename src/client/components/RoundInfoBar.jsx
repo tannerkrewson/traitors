@@ -9,19 +9,12 @@ export default class RoundInfoBar extends Component {
         var round = this.props.round;
         var ourRole = this.props.me.isTraitor ? "traitor" : "faithful";
 
-        const twoFailNotice = round.players.length >= 7;
-
         return (
             <div className="round-info-bar mt-4 flex flex-col gap-4 border-t border-base-content/20 pt-6">
                 <MissionBar
                     missions={round.missions}
                     numberOfPlayers={round.players.length}
                 />
-                {twoFailNotice && (
-                    <p className="section-label">
-                        Mission 4 needs two sabotages to fail.
-                    </p>
-                )}
                 <RejectedTeams count={round.rejectedTeams} />
                 <RoleViewer role={ourRole} players={round.players} me={me} />
                 <p className="section-label">

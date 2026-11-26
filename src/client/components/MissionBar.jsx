@@ -19,8 +19,24 @@ export default class MissionBar extends Component {
                 />,
             );
         });
+        var twoFails = numberOfPlayers >= 7;
         return (
-            <ol className="mission-bar flex justify-center gap-1.5">{boxes}</ol>
+            <div className="flex flex-col items-center gap-3">
+                <ol className="mission-bar relative flex w-full max-w-sm justify-between">
+                    {/* the track the missions sit on */}
+                    <span
+                        aria-hidden="true"
+                        className="absolute top-[1.375rem] right-6 left-6 h-px bg-base-content/15"
+                    />
+                    {boxes}
+                </ol>
+                {twoFails && (
+                    <p className="section-label flex items-center gap-2">
+                        <span className="size-2 rounded-full bg-error" />
+                        Mission 4 needs two sabotages to fail.
+                    </p>
+                )}
+            </div>
         );
     }
 }
