@@ -125,6 +125,15 @@
         @apply flex flex-col gap-4;
     }
 
+    /* the game inside the demo page's phone frame */
+    .demo-phone .main-content {
+        @apply min-h-full pt-6;
+    }
+
+    .demo-phone footer {
+        display: none !important;
+    }
+
     .section-label {
         @apply text-sm text-base-content/65;
     }

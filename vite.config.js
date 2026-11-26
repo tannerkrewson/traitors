@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
                           "index.html",
                           "how-to-play.html",
                           "the-resistance-online.html",
+                          "demo.html",
                       ],
             },
         },

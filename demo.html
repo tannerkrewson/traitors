@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-02CH6EK1T2"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+            gtag("config", "G-02CH6EK1T2");
+        </script>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Try Traitors: Play a Demo Round with Bots</title>
+        <meta
+            name="description"
+            content="Play a quick game of Traitors against four bots, right in your browser. See how roles, team votes and secret sabotage work before you play with friends."
+        />
+        <link
+            rel="canonical"
+            href="https://www.tannerkrewson.com/traitors/demo"
+        />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#121110" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Traitors" />
+        <meta property="og:title" content="Try a round of Traitors" />
+        <meta
+            property="og:description"
+            content="Play a quick game against four bots and see how it works."
+        />
+        <meta
+            property="og:url"
+            content="https://www.tannerkrewson.com/traitors/demo"
+        />
+        <meta
+            property="og:image"
+            content="https://www.tannerkrewson.com/traitors/og.png"
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <link rel="stylesheet" href="/src/client/main.css" />
+    </head>
+
+    <body>
+        <div
+            class="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-5 py-10"
+        >
+            <header class="flex flex-wrap items-center justify-between gap-4">
+                <a href="./" class="so-h2 text-primary no-underline"
+                    >Traitors</a
+                >
+                <a
+                    class="btn btn-primary no-underline"
+                    href="https://rocketcrab.com/transfer/traitors"
+                    >Start a game</a
+                >
+            </header>
+
+            <main class="flex flex-col gap-6">
+                <div class="flex flex-col gap-3">
+                    <h1 class="so-h1 text-5xl">Try a round</h1>
+                    <p class="max-w-2xl">
+                        You're at a table with Maya, Theo, Priya and Sam, and
+                        two of the five of you are traitors. Play a game against
+                        them right here. The table on the side explains each
+                        step as it comes up.
+                    </p>
+                </div>
+                <div id="demo"></div>
+                <noscript>The demo needs JavaScript.</noscript>
+                <p class="section-label">
+                    The bots follow simple rules. Real friends lie much better.
+                    <a href="how-to-play">Read the full rules</a>.
+                </p>
+            </main>
+
+            <footer
+                class="flex flex-wrap justify-center gap-x-4 gap-y-1 border-t border-base-content/20 pt-4 text-sm text-base-content/60"
+            >
+                <span
+                    >Traitors by
+                    <a href="https://www.tannerkrewson.com/">Tanner Krewson</a>
+                </span>
+                <a href="./">Play Traitors</a>
+                <a href="how-to-play">How to play</a>
+                <a href="https://github.com/tannerkrewson/traitors"
+                    >View on GitHub</a
+                >
+            </footer>
+        </div>
+        <script type="module" src="/src/demo/main.jsx"></script>
+    </body>
+</html>
