@@ -7,7 +7,11 @@ export default class PlayerList extends Component {
         return (
             <ul className="flex flex-wrap justify-center gap-2">
                 {this.props.players.map((player, i) => (
-                    <PlayerBox name={player.name} key={i} />
+                    <PlayerBox
+                        name={player.name}
+                        isBot={player.isBot}
+                        key={i}
+                    />
                 ))}
             </ul>
         );

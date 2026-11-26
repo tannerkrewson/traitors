@@ -24,6 +24,7 @@ Player.getJson = function (player, showRole) {
         isCaptain: player.isCaptain,
         hasBeenCaptain: player.hasBeenCaptain,
     };
+    if (player.isBot) json.isBot = true;
     if (showRole) json.isTraitor = player.isTraitor;
     return json;
 };

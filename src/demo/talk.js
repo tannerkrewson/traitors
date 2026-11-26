@@ -2,7 +2,7 @@
 // each part the first time it comes up, and the bots' table talk, written
 // from what actually happened.
 
-import { suspicion } from "./bots.js";
+import { suspicion } from "../game/bots.js";
 
 const pickOne = (list, random) =>
     list.length ? list[Math.floor(random() * list.length)] : undefined;

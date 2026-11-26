@@ -2,7 +2,7 @@
 
 #### Play now: [tannerkrewson.com/traitors](https://www.tannerkrewson.com/traitors/)
 
-A free social deduction game for 5 to 10 players, based on The Resistance.
+A free social deduction game for 3 to 10 players, based on The Resistance.
 Most players are Faithful; a few are Traitors who sabotage missions.
 Formerly known as Snakeout.
 

@@ -9,10 +9,10 @@ export default class CheckableButton extends Component {
             return (
                 <div
                     className={
-                        "btn btn-block pointer-events-none " +
+                        "flex h-10 items-center justify-center gap-1.5 rounded-field border px-3 " +
                         (this.props.checked
-                            ? "btn-primary"
-                            : "btn-neutral opacity-50")
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-base-content/15 text-base-content/50")
                     }
                 >
                     {this.props.children}

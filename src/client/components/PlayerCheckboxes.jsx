@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import GetPlayer from "../utils/GetPlayer";
 import CheckableButton from "./CheckableButton";
+import { BotTag } from "./PlayerBox";
 
 // props:
 // players, list of players
@@ -34,6 +35,7 @@ export default class PlayerCheckboxes extends Component {
                     disabled={this.props.disabled}
                 >
                     {players[i].name}
+                    {players[i].isBot && <BotTag />}
                 </CheckableButton>
             );
 

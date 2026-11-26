@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import App from "../client/App.jsx";
 import { game } from "../game/game.js";
-import { botMoves } from "./bots.js";
+import { botMoves } from "../game/bots.js";
 import { createLocalParty } from "./nova.js";
 import { createTalk } from "./talk.js";
 

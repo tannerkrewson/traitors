@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { game } from "../game/game.js";
-import { botMoves } from "../demo/bots.js";
+import { botMoves } from "../game/bots.js";
 import { createTalk } from "../demo/talk.js";
 
 // The demo's bots must be able to finish any game, and the table talk must

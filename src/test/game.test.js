@@ -1,23 +1,60 @@
 import { expect, test } from "vitest";
 import { game } from "../game/game.js";
+import { botMoves } from "../game/bots.js";
 
 const people = (n) =>
     Array.from({ length: n }, (_, i) => ({ id: `p${i}`, name: `P${i}` }));
 const as = (actor, players) => ({ players, leaderId: players[0].id, actor });
 
-test("waits in the lobby until there are 5 to 10 players", () => {
-    const players = people(4);
+test("waits in the lobby until there are 3 to 10 players", () => {
+    const players = people(2);
     const state = game.createInitialState({ players });
     expect(game.selectView(state, players[0]).round).toBeNull();
     expect(() =>
         game.actions.startGame(state, as(players[1], players)),
-    ).toThrow("5 to 10");
+    ).toThrow("3 to 10");
 
     const late = { id: "p9", name: "Late" };
     game.playerJoined(state, {}, late);
+    // 3 or 4 players stay in the lobby to read about bots first
+    expect(state.round).toBeNull();
     game.actions.startGame(state, as(late, [...players, late]));
     expect(game.selectView(state, late).round.phase).toBe("start");
     expect(game.selectView(state, late).you.name).toBe("Late");
+});
+
+test("bots fill a small game and play it to the end", () => {
+    for (const humans of [3, 4]) {
+        for (let run = 0; run < 50; run++) {
+            const players = people(humans);
+            const state = game.createInitialState({ players });
+            game.actions.startGame(state, as(players[0], players));
+            const seats = state.round.players;
+            expect(seats).toHaveLength(5);
+            expect(seats.filter((seat) => seat.isBot)).toHaveLength(5 - humans);
+            const view = game.selectView(state, players[0]).round;
+            expect(view.players.filter((p) => p.isBot)).toHaveLength(
+                5 - humans,
+            );
+
+            let winner = null;
+            for (let step = 0; step < 3000 && state.round; step++) {
+                for (const player of players) {
+                    for (const move of botMoves(state, player.id)) {
+                        game.actions[move.type](
+                            state,
+                            as(player, players),
+                            move.payload,
+                        );
+                    }
+                }
+                game.tick(state, { dt: 0.5 });
+                if (state.round) winner = state.round.winner || winner;
+            }
+            expect(state.round).toBeNull();
+            expect(["traitor", "faithful"]).toContain(winner);
+        }
+    }
 });
 
 test("a player who comes back gets their seat back", () => {

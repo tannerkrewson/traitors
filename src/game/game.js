@@ -4,6 +4,7 @@
 
 import { Round } from "./round.js";
 import { Player } from "./player.js";
+import { stepBots } from "./bots.js";
 
 // The Nova game definition. The state is plain JSON:
 //   players  everyone in the party right now, as { id, name }
@@ -13,8 +14,10 @@ import { Player } from "./player.js";
 export const game = {
     title: "Traitors",
     apiVersion: 1,
-    minPlayers: 5,
+    minPlayers: 3,
     maxPlayers: 10,
+    // only bots use the tick, and only while one of them is about to move
+    tickRate: 2,
 
     createInitialState(context) {
         var state = {
@@ -22,8 +25,11 @@ export const game = {
             round: null,
             currentRoundNum: 1,
         };
-        // the party is already gathered, so begin right away if we can
-        if (isReady(state)) startNewRound(state);
+        // the party is already gathered, so begin right away if we can.
+        // Smaller parties see what playing with bots means first.
+        if (isReady(state) && state.players.length >= FULL_TABLE) {
+            startNewRound(state);
+        }
         return state;
     },
 
@@ -31,7 +37,7 @@ export const game = {
         startGame(state) {
             if (state.round) throw new Error("A game is already going.");
             if (!isReady(state)) {
-                throw new Error("You need 5 to 10 players to start.");
+                throw new Error("You need 3 to 10 players to start.");
             }
             startNewRound(state);
         },
@@ -75,6 +81,12 @@ export const game = {
         },
     },
 
+    tick(state, context) {
+        if (!state.round) return;
+        stepBots(state.round, context.dt);
+        endIfOver(state);
+    },
+
     // what one player may see: their own seat, and the round without the
     // other players' secrets
     selectView(state, viewer) {
@@ -108,15 +120,26 @@ export const game = {
     },
 };
 
+// the rules are written for 5 to 10 players; bots fill the table up to 5
+var FULL_TABLE = 5;
+var BOT_NAMES = ["Maya", "Theo", "Priya", "Sam", "Jules"];
+
 function isReady(state) {
-    //the game must have [5, 10] players
-    return state.players.length >= 5 && state.players.length <= 10;
+    //the game must have [3, 10] players
+    return state.players.length >= 3 && state.players.length <= 10;
 }
 
 function startNewRound(state) {
     var players = state.players.map((player, i) =>
         Player(player.name, player.id, i + 1),
     );
+    var names = players.map((player) => player.name);
+    var botNames = BOT_NAMES.filter((name) => !names.includes(name));
+    while (players.length < FULL_TABLE) {
+        var bot = Player(botNames.shift(), null, players.length + 1);
+        bot.isBot = true;
+        players.push(bot);
+    }
     state.round = Round(state.currentRoundNum++, players);
     Round.startRound(state.round);
 }

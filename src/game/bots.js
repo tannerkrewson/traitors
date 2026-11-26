@@ -1,6 +1,8 @@
-// Plausible players for the solo demo. A bot looks at the whole state (the
-// demo runs entirely in one browser) and returns the moves it wants to make
-// right now. The rules still decide whether a move is allowed.
+// Plausible players for small games and the solo demo. A bot looks at the
+// whole state and returns the moves it wants to make right now. The rules
+// still decide whether a move is allowed.
+
+import { Round } from "./round.js";
 
 const seatOf = (round, id) => round.players.find((player) => player.id === id);
 
@@ -73,7 +75,10 @@ function passes(round, me, mission, random) {
 export function botMoves(state, partyId, random = Math.random) {
     const round = state.round;
     const me = round && round.players.find((p) => p.partyId === partyId);
-    if (!me) return [];
+    return me ? seatMoves(round, me, random) : [];
+}
+
+export function seatMoves(round, me, random = Math.random) {
     const waiting = round.playersBeingWaitedOn.includes(me.id);
     const mission = round.missions[round.missionNumber - 1];
     switch (round.phase) {
@@ -118,4 +123,76 @@ export function botMoves(state, partyId, random = Math.random) {
             return waiting ? [{ type: "doneViewingResults" }] : [];
     }
     return [];
+}
+
+// how long a bot takes in each phase, in seconds: [least, most]
+const PACE = {
+    start: [1.5, 3],
+    selection: [1, 1.5],
+    voting: [1, 2.5],
+    voting_results: [1, 2],
+    mission: [1, 2],
+    drumroll: [0.5, 1.5],
+    mission_results: [1.5, 3],
+};
+
+// Run from the game's tick: the first bot with something to do waits a
+// moment, as a person would, then makes its move. The state only changes
+// while a bot is waiting or moving, so idle ticks cost nothing.
+export function stepBots(round, dt, random = Math.random) {
+    let bot;
+    let move;
+    for (const seat of round.players) {
+        if (!seat.isBot) continue;
+        [move] = seatMoves(round, seat, random);
+        if (move) {
+            bot = seat;
+            break;
+        }
+    }
+    if (!move) {
+        if (round.botTimer != null) round.botTimer = null;
+        return;
+    }
+    if (round.botTimer == null) {
+        const [least, most] = PACE[round.phase];
+        round.botTimer =
+            Math.round((least + random() * (most - least)) * 10) / 10;
+        return;
+    }
+    round.botTimer = Math.round((round.botTimer - dt) * 10) / 10;
+    if (round.botTimer > 0) return;
+    round.botTimer = null;
+    makeMove(round, bot, move);
+}
+
+function makeMove(round, bot, move) {
+    const vote = move.payload && move.payload.vote;
+    switch (move.type) {
+        case "submitSelectedPlayers": {
+            // pick one player at a time, so everyone sees it happen
+            const team = round.botTeam || move.payload.selectedPlayers;
+            const picked = round.captainsSelectedPlayers.length;
+            if (picked < team.length) {
+                round.botTeam = team;
+                Round.updateSelectedPlayers(
+                    round,
+                    bot,
+                    team.slice(0, picked + 1),
+                );
+            } else {
+                round.botTeam = null;
+                Round.submitSelectedPlayers(round, bot, team);
+            }
+            break;
+        }
+        case "vote":
+            Round.vote(round, bot, vote);
+            break;
+        case "missionVote":
+            Round.missionVote(round, bot, vote);
+            break;
+        default:
+            Round.done(round, bot, round.phase);
+    }
 }
