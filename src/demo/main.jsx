@@ -15,6 +15,23 @@ const mode =
         : "sabotage";
 const practice = createPractice(mode);
 
+const GAMES = [
+    {
+        mode: "sabotage",
+        name: "Sabotage",
+        href: "demo",
+        tagline: "Pass three missions before the traitors wreck them.",
+        inspiredBy: "Inspired by The Resistance",
+    },
+    {
+        mode: "banishment",
+        name: "Banishment",
+        href: "demo?game=banishment",
+        tagline: "Vote out the traitors before they pick everyone off.",
+        inspiredBy: "Inspired by Mafia, Werewolf and the TV show",
+    },
+];
+
 function Demo() {
     const [lines, setLines] = useState([]);
     const log = useRef(null);
@@ -34,24 +51,48 @@ function Demo() {
 
     return (
         <div className="flex flex-col gap-4">
-            <nav className="flex gap-2" aria-label="Game">
-                {["sabotage", "banishment"].map((game) => (
-                    <a
-                        key={game}
-                        href={
-                            game === "sabotage"
-                                ? "demo"
-                                : "demo?game=banishment"
-                        }
-                        aria-current={game === mode ? "page" : undefined}
-                        className={
-                            "btn btn-sm no-underline " +
-                            (game === mode ? "btn-primary" : "btn-neutral")
-                        }
-                    >
-                        {game === "sabotage" ? "Sabotage" : "Banishment"}
-                    </a>
-                ))}
+            <nav
+                className="grid gap-3 sm:grid-cols-2"
+                aria-label="Choose a game to try"
+            >
+                {GAMES.map((game) => {
+                    const active = game.mode === mode;
+                    return (
+                        <a
+                            key={game.mode}
+                            href={game.href}
+                            aria-current={active ? "page" : undefined}
+                            className={
+                                "card gap-1 border-2 p-5 no-underline transition-colors " +
+                                (active
+                                    ? "border-primary bg-base-200"
+                                    : "border-transparent bg-base-200/60 hover:border-base-content/25")
+                            }
+                        >
+                            <span className="flex items-baseline justify-between gap-3">
+                                <span className="font-display text-3xl font-semibold text-primary">
+                                    {game.name}
+                                </span>
+                                <span
+                                    className={
+                                        "text-sm " +
+                                        (active
+                                            ? "text-primary"
+                                            : "text-base-content/60")
+                                    }
+                                >
+                                    {active
+                                        ? "Playing now"
+                                        : "Try this instead"}
+                                </span>
+                            </span>
+                            <span>{game.tagline}</span>
+                            <span className="section-label">
+                                {game.inspiredBy}
+                            </span>
+                        </a>
+                    );
+                })}
             </nav>
             <div className="grid items-start gap-6 md:grid-cols-[1fr_24rem]">
                 <div className="demo-phone h-[42rem] overflow-y-auto rounded-[2rem] border border-base-content/15 bg-base-100 shadow-2xl">
