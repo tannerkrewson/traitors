@@ -19,7 +19,7 @@
         <title>Traitors: A Free Traitor Game to Play Online with Friends</title>
         <meta
             name="description"
-            content="Traitors is a free social deduction game for 3 to 10 players, inspired by The Resistance. Play online with friends on your phones, in the same room or over a video call. No app or sign-up."
+            content="A free social deduction game for 3 to 10 friends. Play Sabotage, like The Resistance, or Banishment, like Mafia, on your phones. No app or sign-up."
         />
         <link rel="canonical" href="https://www.tannerkrewson.com/traitors/" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -89,6 +89,14 @@
                 "mainEntity": [
                     {
                         "@type": "Question",
+                        "name": "What's the difference between Sabotage and Banishment?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "In Sabotage, teams go on missions and the traitors secretly sabotage them, like The Resistance. Nobody is eliminated. In Banishment, the group votes someone out each day and the traitors murder someone each night, like Mafia or Werewolf."
+                        }
+                    },
+                    {
+                        "@type": "Question",
                         "name": "How many players do you need for Traitors?",
                         "acceptedAnswer": {
                             "@type": "Answer",
@@ -146,10 +154,8 @@
                     traitors. Nobody knows who.
                 </p>
                 <div class="flex flex-wrap justify-center gap-3">
-                    <a
-                        class="btn btn-primary btn-lg no-underline"
-                        href="https://rocketcrab.com/transfer/traitors"
-                        >Start a game</a
+                    <a class="btn btn-primary btn-lg no-underline" href="#games"
+                        >Choose a game</a
                     >
                     <a
                         class="btn btn-neutral btn-lg no-underline"
@@ -165,35 +171,67 @@
             </header>
 
             <main class="flex flex-col gap-12">
-                <section class="flex flex-col gap-4">
-                    <h2 class="so-h2">How it works</h2>
-                    <ol class="list-decimal space-y-3 pl-6">
-                        <li>
-                            Start a party on Rocketcrab and share the code with
-                            your friends. Pick Traitors and start the game.
-                        </li>
-                        <li>
-                            Each player secretly learns their role. Most of you
-                            are <strong>Faithful</strong>. A few are
-                            <strong>Traitors</strong>, and they know each other.
-                        </li>
-                        <li>
-                            Each round, a captain picks a team for a mission,
-                            and everyone votes on the team in the open.
-                        </li>
-                        <li>
-                            The team decides the mission in secret. One sabotage
-                            is enough to fail it, and nobody learns who did it.
-                        </li>
-                        <li>
-                            The Faithful win by passing three missions. The
-                            Traitors win by sabotaging three, or if five teams
-                            in a row are rejected.
-                        </li>
-                    </ol>
+                <section id="games" class="flex scroll-mt-6 flex-col gap-4">
+                    <h2 class="so-h2">Two ways to play</h2>
                     <p>
-                        <a href="how-to-play">Read the full rules</a>
+                        In both games, each player secretly learns their role.
+                        Most of you are <strong>Faithful</strong>. A few are
+                        <strong>Traitors</strong>, and they know each other.
                     </p>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <article class="card gap-3 bg-base-200 p-5">
+                            <h3 class="font-display text-3xl text-primary">
+                                Sabotage
+                            </h3>
+                            <p>
+                                Pass three missions before the traitors wreck
+                                them. A captain picks each team, everyone votes
+                                on it in the open, and the team decides the
+                                mission in secret.
+                            </p>
+                            <p class="section-label">
+                                Inspired by The Resistance. Nobody is
+                                eliminated.
+                            </p>
+                            <div class="mt-auto flex flex-wrap gap-2">
+                                <a
+                                    class="btn btn-primary no-underline"
+                                    href="https://rocketcrab.com/transfer/traitors"
+                                    >Play Sabotage</a
+                                >
+                                <a
+                                    class="btn btn-neutral no-underline"
+                                    href="how-to-play"
+                                    >Rules</a
+                                >
+                            </div>
+                        </article>
+                        <article class="card gap-3 bg-base-200 p-5">
+                            <h3 class="font-display text-3xl text-primary">
+                                Banishment
+                            </h3>
+                            <p>
+                                Vote out the traitors before they pick everyone
+                                off. Each day the round table banishes someone,
+                                and each night the traitors murder someone.
+                            </p>
+                            <p class="section-label">
+                                Inspired by Mafia, Werewolf and the TV show.
+                            </p>
+                            <div class="mt-auto flex flex-wrap gap-2">
+                                <a
+                                    class="btn btn-primary no-underline"
+                                    href="https://rocketcrab.com/transfer/traitors-banishment"
+                                    >Play Banishment</a
+                                >
+                                <a
+                                    class="btn btn-neutral no-underline"
+                                    href="banishment"
+                                    >Rules</a
+                                >
+                            </div>
+                        </article>
+                    </div>
                 </section>
 
                 <section class="flex flex-col gap-4">
@@ -227,21 +265,42 @@
                 </section>
 
                 <section class="flex flex-col gap-4">
-                    <h2 class="so-h2">Inspired by The Resistance</h2>
+                    <h2 class="so-h2">Inspired by classic party games</h2>
                     <p>
                         If you have played The Resistance or Avalon, you already
-                        know how to play. Traitors uses the same team sizes and
-                        the same mission rules, so it is an easy way to play a
-                        game like The Resistance online for free.
+                        know how to play Sabotage. It uses the same team sizes
+                        and mission rules, so it's an easy way to play a game
+                        like The Resistance online for free.
                         <a href="the-resistance-online"
-                            >See how Traitors compares</a
+                            >See how Sabotage compares</a
                         >.
+                    </p>
+                    <p>
+                        Banishment plays like Mafia or Werewolf, with no
+                        moderator needed and a few twists from the TV show: the
+                        traitors can recruit, and the last few players can vote
+                        to end the game.
+                        <a href="banishment">Read how Banishment works</a>.
                     </p>
                 </section>
 
                 <section class="flex flex-col gap-4">
                     <h2 class="so-h2">Questions</h2>
                     <div class="flex flex-col gap-2">
+                        <details class="collapse-arrow collapse bg-base-200">
+                            <summary class="collapse-title">
+                                What's the difference between Sabotage and
+                                Banishment?
+                            </summary>
+                            <p class="collapse-content">
+                                In Sabotage, teams go on missions and the
+                                traitors secretly sabotage them, like The
+                                Resistance. Nobody is eliminated. In Banishment,
+                                the group votes someone out each day and the
+                                traitors murder someone each night, like Mafia
+                                or Werewolf.
+                            </p>
+                        </details>
                         <details class="collapse-arrow collapse bg-base-200">
                             <summary class="collapse-title">
                                 How many players do you need?

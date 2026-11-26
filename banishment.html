@@ -1,7 +1,6 @@
 <!doctype html>
-<html lang="en" data-mode="banishment">
+<html lang="en">
     <head>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
         <script
             async
             src="https://www.googletagmanager.com/gtag/js?id=G-02CH6EK1T2"
@@ -12,20 +11,206 @@
                 dataLayer.push(arguments);
             }
             gtag("js", new Date());
-            gtag("config", "G-02CH6EK1T2", {
-                page_location:
-                    "https://www.tannerkrewson.com/traitors/banishment.html",
-            });
+            gtag("config", "G-02CH6EK1T2");
         </script>
 
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="robots" content="noindex" />
-        <title>Traitors: Banishment</title>
+        <title>
+            Traitors: Banishment, a Free Mafia-Style Game to Play Online
+        </title>
+        <meta
+            name="description"
+            content="Banish the traitors before they murder everyone. A free online game like Mafia and Werewolf for 3 to 10 friends, with no moderator needed."
+        />
+        <link
+            rel="canonical"
+            href="https://www.tannerkrewson.com/traitors/banishment"
+        />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#121110" />
+
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content="Traitors" />
+        <meta property="og:title" content="Traitors: Banishment" />
+        <meta
+            property="og:description"
+            content="Each day the table banishes someone. Each night the traitors murder someone. A free game like Mafia and Werewolf."
+        />
+        <meta
+            property="og:url"
+            content="https://www.tannerkrewson.com/traitors/banishment"
+        />
+        <meta
+            property="og:image"
+            content="https://www.tannerkrewson.com/traitors/og.png"
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "VideoGame",
+                "name": "Traitors: Banishment",
+                "url": "https://www.tannerkrewson.com/traitors/banishment",
+                "image": "https://www.tannerkrewson.com/traitors/og.png",
+                "description": "A free social deduction game for 3 to 10 players. Each day the group banishes someone; each night the hidden traitors murder someone.",
+                "genre": ["Social deduction", "Party game", "Hidden role"],
+                "gamePlatform": "Web browser",
+                "applicationCategory": "Game",
+                "playMode": "MultiPlayer",
+                "numberOfPlayers": {
+                    "@type": "QuantitativeValue",
+                    "minValue": 3,
+                    "maxValue": 10
+                },
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                },
+                "author": {
+                    "@type": "Person",
+                    "name": "Tanner Krewson",
+                    "url": "https://www.tannerkrewson.com/"
+                },
+                "isBasedOn": {
+                    "@type": "Game",
+                    "name": "Mafia",
+                    "author": { "@type": "Person", "name": "Dimitry Davidoff" }
+                }
+            }
+        </script>
+
+        <link rel="stylesheet" href="/src/client/main.css" />
     </head>
 
     <body>
-        <div id="root"></div>
-        <script type="module" src="/src/client/index.jsx"></script>
+        <div
+            class="mx-auto flex min-h-screen max-w-2xl flex-col gap-10 px-5 py-10"
+        >
+            <header class="flex flex-wrap items-center justify-between gap-4">
+                <a href="./" class="so-h2 text-primary no-underline"
+                    >Traitors</a
+                >
+                <a
+                    class="btn btn-primary no-underline"
+                    href="https://rocketcrab.com/transfer/traitors-banishment"
+                    >Play Banishment</a
+                >
+            </header>
+
+            <main class="flex flex-col gap-6">
+                <h1 class="so-h1 text-5xl">Banishment</h1>
+                <p class="text-lg">
+                    Banish the traitors before they murder everyone. Banishment
+                    is a free game like Mafia and Werewolf that you play on your
+                    phones, with no moderator: the game deals the roles, counts
+                    the votes and keeps the night secret.
+                </p>
+                <p class="alert alert-soft">
+                    Rather learn by playing?
+                    <a href="demo?game=banishment">Try a round against bots</a>,
+                    with a guide explaining each step as it happens.
+                </p>
+
+                <h2 class="so-h2">Players and roles</h2>
+                <p>
+                    Banishment is made for 5 to 10 players, each with their own
+                    phone or computer. With 3 or 4, bots take the empty seats.
+                    Each player secretly learns their role. Most are faithful.
+                    One is a traitor with 5 or 6 players, two with 7 to 9, and
+                    three with 10. The traitors know each other; the faithful
+                    don't know anyone.
+                </p>
+
+                <h2 class="so-h2">How a game goes</h2>
+                <ol class="list-decimal space-y-4 pl-6">
+                    <li>
+                        <strong>The round table.</strong> Each day, everyone
+                        argues about who the traitors are, then votes to banish
+                        one player. Votes are secret until everyone has voted,
+                        then the table sees who voted for whom.
+                        <ul class="mt-2 list-disc space-y-2 pl-6">
+                            <li>
+                                The banished player's role is revealed: faithful
+                                or traitor.
+                            </li>
+                            <li>
+                                A tie gets one revote between the tied players.
+                                If it ties again, nobody is banished.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Night.</strong> The traitors choose a faithful
+                        player to murder. Everyone else waits, and learns who
+                        died in the morning.
+                        <ul class="mt-2 list-disc space-y-2 pl-6">
+                            <li>
+                                If a traitor was banished that day and others
+                                remain, they recruit a faithful player to their
+                                side instead. Nobody dies that night, and only
+                                the traitors know who switched.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>The endgame.</strong> Once four or fewer remain,
+                        each day starts with a vote to end the game. If everyone
+                        votes to end it, the game is over: the traitors win if
+                        any of them is still in, and the faithful win if not.
+                        One vote to keep going sends the table back to banish
+                        another player.
+                    </li>
+                </ol>
+
+                <h2 class="so-h2">Winning</h2>
+                <ul class="list-disc space-y-2 pl-6">
+                    <li>The faithful win when every traitor is banished.</li>
+                    <li>
+                        The traitors win once they can no longer be outvoted:
+                        when there are as many traitors left as faithful.
+                    </li>
+                </ul>
+                <p>
+                    Banished and murdered players keep watching. They see who
+                    the traitors are, but they can't vote or tell anyone.
+                </p>
+
+                <h2 class="so-h2">Banishment, Mafia and the TV show</h2>
+                <p>
+                    If you have played Mafia or Werewolf, you know the rhythm:
+                    accuse by day, murder by night. Banishment adds two twists
+                    from the TV show <em>The Traitors</em>: recruitment, and the
+                    endgame vote, where the last few players have to decide
+                    whether they trust each other enough to stop.
+                </p>
+                <p class="section-label">
+                    Traitors is an unofficial fan game, not affiliated with the
+                    TV show or any game publisher.
+                </p>
+                <p>
+                    Prefer missions to murders? Try
+                    <a href="how-to-play">Sabotage</a>, where nobody is
+                    eliminated.
+                </p>
+            </main>
+
+            <footer
+                class="flex flex-wrap justify-center gap-x-4 gap-y-1 border-t border-base-content/20 pt-4 text-sm text-base-content/60"
+            >
+                <span
+                    >Traitors by
+                    <a href="https://www.tannerkrewson.com/">Tanner Krewson</a>
+                </span>
+                <a href="./">Play Traitors</a>
+                <a href="how-to-play">Sabotage rules</a>
+                <a href="https://github.com/tannerkrewson/traitors"
+                    >View on GitHub</a
+                >
+            </footer>
+        </div>
     </body>
 </html>
