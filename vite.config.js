@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
 // The site builds to dist/ for GitHub Pages at /traitors/. The Nova build
@@ -8,7 +9,7 @@ export default defineConfig(({ mode }) => {
     const nova = mode === "nova";
     return {
         base: "/traitors/",
-        plugins: [react(), ...(nova ? [viteSingleFile()] : [])],
+        plugins: [react(), tailwindcss(), ...(nova ? [viteSingleFile()] : [])],
         build: {
             emptyOutDir: !nova,
             copyPublicDir: !nova,

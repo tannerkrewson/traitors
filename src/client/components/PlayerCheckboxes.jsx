@@ -9,8 +9,7 @@ import CheckableButton from "./CheckableButton";
 // onCheck, function that gets passed the player that was checked
 export default class PlayerCheckboxes extends Component {
     render() {
-        let evens = [];
-        let odds = [];
+        let boxes = [];
 
         let players = this.props.players;
 
@@ -38,23 +37,9 @@ export default class PlayerCheckboxes extends Component {
                 </CheckableButton>
             );
 
-            // fill two columns evenly
-            if (i % 2 === 0) {
-                evens.push(thisBox);
-            } else {
-                odds.push(thisBox);
-            }
+            boxes.push(thisBox);
         }
 
-        return (
-            <div style={{ paddingBottom: "16px" }}>
-                <div className="btn-group-vertical checkable-but">{evens}</div>
-                {odds.length > 0 && (
-                    <div className="btn-group-vertical checkable-but">
-                        {odds}
-                    </div>
-                )}
-            </div>
-        );
+        return <div className="grid grid-cols-2 gap-2">{boxes}</div>;
     }
 }

@@ -119,7 +119,7 @@ test("plays a mission from the role reveal to the results", async () => {
     const seats = session.state().round.players;
     const captain = seats.findIndex((seat) => seat.isCaptain);
     const captainDoc = documents[captain];
-    await see(captainDoc, /you are captain/i);
+    await see(captainDoc, /you are the captain/i);
     const picked = (n) =>
         vi.waitFor(() =>
             expect(session.state().round.captainsSelectedPlayers).toHaveLength(
@@ -137,7 +137,7 @@ test("plays a mission from the role reveal to the results", async () => {
     for (const doc of documents) await click(doc, "Next");
 
     for (const i of [1, 2]) await click(documents[i], "Pass");
-    for (const doc of documents) await click(doc, "Next");
+    for (const doc of documents) await click(doc, "Reveal the results");
     for (const doc of documents) {
         await see(doc, /mission 1 passed/i);
         await see(doc, /2 pass votes/);

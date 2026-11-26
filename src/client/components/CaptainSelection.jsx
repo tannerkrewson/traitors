@@ -42,7 +42,7 @@ export default class CaptainSelection extends Component {
 
         return (
             <div className="captain-selector">
-                <p className="so-h2">You are captain!</p>
+                <p className="so-h2">You are the captain</p>
                 <p className="so-h3">
                     Select
                     <span> {numPlayersToSelect} </span>
@@ -56,6 +56,7 @@ export default class CaptainSelection extends Component {
                     onChange={this.updatePlayerList.bind(this)}
                 />
                 <SOButton
+                    primary
                     disabled={!this.state.ready}
                     onClick={this.submitSelectedPlayers.bind(this)}
                 >

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import PlayerList from "./PlayerList";
+import TraitorList from "./TraitorList";
 import SOButton from "./SOButton";
 import RoundInfoBar from "./RoundInfoBar";
 
@@ -16,9 +16,9 @@ export default class Results extends Component {
         var topMessage = "Mission " + currentMission.number;
         var bodyMessage = "";
         if (currentMission.status === "faithful") {
-            topMessage += " passed!";
+            topMessage += " passed";
         } else if (currentMission.status === "traitor") {
-            topMessage += " failed.";
+            topMessage += " was sabotaged";
         } else {
             console.log(
                 "Results error A: mission status bad type: " +
@@ -53,51 +53,31 @@ export default class Results extends Component {
         const faithfulWin = passedMissionsToFaithfulWin === 0;
         const traitorsWin = failedMissionsToTraitorWin === 0;
 
+        const missions = (n) =>
+            n + (n === 1 ? " more mission" : " more missions");
         if (faithfulWin) {
-            // loyalists won
-            topMessage = "Loyalists win!";
+            // faithful won
+            topMessage = "The Faithful win";
             bodyMessage +=
-                "Snakes needed " +
-                failedMissionsToTraitorWin +
-                " more failing missions to win.\n";
+                "The traitors needed to sabotage " +
+                missions(failedMissionsToTraitorWin) +
+                ".\n";
         } else if (traitorsWin) {
-            // snakes won
-            topMessage = "Snakes win!";
+            // traitors won
+            topMessage = "The Traitors win";
             bodyMessage +=
-                "Loyalists needed " +
-                passedMissionsToFaithfulWin +
-                " more passing missions to win.\n";
+                "The faithful needed to pass " +
+                missions(passedMissionsToFaithfulWin) +
+                ".\n";
         } else {
             bodyMessage +=
-                "Loyalists need " +
-                passedMissionsToFaithfulWin +
-                " more passing missions to win.\n";
+                "The faithful need to pass " +
+                missions(passedMissionsToFaithfulWin) +
+                ".\n";
             bodyMessage +=
-                "Snakes need " +
-                failedMissionsToTraitorWin +
-                " more failing missions to win.\n";
-        }
-
-        // if the game is over, reveal who was a snake
-        var TraitorList = <div />;
-        if (
-            passedMissionsToFaithfulWin === 0 ||
-            failedMissionsToTraitorWin === 0
-        ) {
-            //get this round's snakes
-            var traitors = [];
-            data.players.forEach(function (player) {
-                if (player.isTraitor) {
-                    traitors.push(player);
-                }
-            });
-
-            TraitorList = (
-                <div>
-                    <p className="so-h3">The snakes this round were:</p>
-                    <PlayerList players={traitors} />
-                </div>
-            );
+                "The traitors need to sabotage " +
+                missions(failedMissionsToTraitorWin) +
+                ".\n";
         }
 
         if (me.isAdmin && (faithfulWin || traitorsWin)) {
@@ -117,11 +97,16 @@ export default class Results extends Component {
             <div className="selection-phase">
                 <p className="so-h2">{topMessage}</p>
                 <p className="so-h3">
-                    {passVotes + " pass votes | " + failVotes + " fail votes"}
+                    {passVotes +
+                        (passVotes === 1 ? " pass vote · " : " pass votes · ") +
+                        failVotes +
+                        (failVotes === 1 ? " sabotage" : " sabotages")}
                 </p>
-                <p className="so-h3">{bodyMessage}</p>
-                {TraitorList}
-                <SOButton onClick={this.doneViewingResults.bind(this)}>
+                <p className="whitespace-pre-line">{bodyMessage}</p>
+                {(faithfulWin || traitorsWin) && (
+                    <TraitorList players={data.players} />
+                )}
+                <SOButton primary onClick={this.doneViewingResults.bind(this)}>
                     Next
                 </SOButton>
                 <RoundInfoBar round={data} me={me} />

@@ -37,14 +37,12 @@ export default class Lobby extends Component {
 
         return (
             <div className="lobby">
-                <p>Players:</p>
+                <p className="so-h2">Gather 5 to 10 players</p>
                 <PlayerList players={this.props.players} />
-                <p>{playersNeededMessage}</p>
-                <div>
-                    <SOButton onClick={startGame} disabled={notReady}>
-                        Start Game
-                    </SOButton>
-                </div>
+                <p className="section-label">{playersNeededMessage}</p>
+                <SOButton primary onClick={startGame} disabled={notReady}>
+                    Start Game
+                </SOButton>
             </div>
         );
     }

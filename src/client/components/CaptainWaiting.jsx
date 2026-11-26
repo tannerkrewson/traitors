@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 
 import PlayerCheckboxes from "./PlayerCheckboxes";
-import PlayerList from "./PlayerList";
 import RoundInfoBar from "./RoundInfoBar";
 
 export default class CaptainWaiting extends Component {
@@ -16,8 +15,6 @@ export default class CaptainWaiting extends Component {
                     selectedPlayers={data.captainsSelectedPlayers}
                     disabled={true}
                 />
-                <p>Players being waited on:</p>
-                <PlayerList players={data.waitingList} />
                 <RoundInfoBar round={data} me={me} />
             </div>
         );

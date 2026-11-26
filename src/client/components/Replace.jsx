@@ -31,19 +31,20 @@ export default class Replace extends Component {
     render() {
         return (
             <div className="replace">
-                <p>Select a player to replace:</p>
+                <p className="so-h2">A game is in progress</p>
+                <p>Take the seat of a player who left:</p>
                 <PlayerSelector
                     players={this.props.disconnectedList}
                     numPlayersToSelect={1}
                     onChange={this.updatePlayerList.bind(this)}
                 />
                 <SOButton
+                    primary
                     disabled={!this.state.ready}
                     onClick={this.tryReplace.bind(this)}
                 >
-                    Replace
+                    Take their seat
                 </SOButton>
-                <br />
             </div>
         );
     }

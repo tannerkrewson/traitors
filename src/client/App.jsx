@@ -180,12 +180,21 @@ export default class App extends Component {
             this.state.connection,
         );
         return (
-            <div className="main-content text-center" id="snakeout">
-                <div className="so-h1">Snakeout 🐍</div>
-                <hr />
-                <br />
-                {reconnecting && <p role="status">Reconnecting…</p>}
-                {this.state.error && <p role="alert">{this.state.error}</p>}
+            <div className="main-content text-center" id="traitors">
+                <h1 className="so-h1">Traitors</h1>
+                {reconnecting && (
+                    <p
+                        role="status"
+                        className="badge badge-warning fixed top-3 right-3"
+                    >
+                        Reconnecting…
+                    </p>
+                )}
+                {this.state.error && (
+                    <p role="alert" className="alert alert-error alert-soft">
+                        {this.state.error}
+                    </p>
+                )}
                 {this.server ? (
                     <this.state.page
                         changePage={this.changePage}
@@ -194,8 +203,8 @@ export default class App extends Component {
                     />
                 ) : (
                     <p>
-                        Play Snakeout with friends on{" "}
-                        <a href="https://rocketcrab.com/transfer/snakeout">
+                        Play Traitors with friends on{" "}
+                        <a href="https://rocketcrab.com/transfer/traitors">
                             Rocketcrab
                         </a>
                         .

@@ -11,7 +11,7 @@ import { Player } from "./player.js";
 // Seats in a round have their own ids, so a newcomer can take over the
 // seat of a player who left.
 export const game = {
-    title: "Snakeout",
+    title: "Traitors",
     apiVersion: 1,
     minPlayers: 5,
     maxPlayers: 10,

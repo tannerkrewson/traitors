@@ -11,12 +11,13 @@ export default class Drumroll extends Component {
         var me = this.props.you;
         var round = this.props.round;
         return (
-            <div>
-                <p className="so-h3">
-                    The results of mission {round.currentMission.number} are in!
+            <div className="drumroll">
+                <p className="so-h2">
+                    The results of mission {round.currentMission.number} are in
                 </p>
-                <SOButton onClick={this.readyToViewResults.bind(this)}>
-                    Next
+                <p>Was it sabotaged? Reveal the results when you are ready.</p>
+                <SOButton primary onClick={this.readyToViewResults.bind(this)}>
+                    Reveal the results
                 </SOButton>
                 <RoundInfoBar round={round} me={me} />
             </div>

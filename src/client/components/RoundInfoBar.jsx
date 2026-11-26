@@ -12,32 +12,44 @@ export default class RoundInfoBar extends Component {
         const twoFailNotice = round.players.length >= 7;
 
         return (
-            <div className="round-info-bar">
-                <br />
-                <hr />
-                <p>Missions:</p>
-                <MissionBar missions={round.missions} />
+            <div className="round-info-bar mt-4 flex flex-col gap-4 border-t border-base-content/20 pt-6">
+                <MissionBar
+                    missions={round.missions}
+                    numberOfPlayers={round.players.length}
+                />
                 {twoFailNotice && (
-                    <div className="card border-light text-white mb-3">
-                        <div className="card-body">
-                            <p className="card-text">
-                                Because this game has 7 or more players, the 4th
-                                mission will require two fails to fail, instead
-                                of just one. So, if just one player fails the
-                                4th mission, the mission will still be won by
-                                the loyalists.
-                            </p>
-                        </div>
-                    </div>
+                    <p className="section-label">
+                        Mission 4 needs two sabotages to fail.
+                    </p>
                 )}
-                <p />
+                <RejectedTeams count={round.rejectedTeams} />
                 <RoleViewer role={ourRole} players={round.players} me={me} />
-                <p />
-                <p>
-                    {round.players.length - round.traitorCount} loyalists |{" "}
-                    {round.traitorCount} snakes
+                <p className="section-label">
+                    {round.players.length - round.traitorCount} Faithful ·{" "}
+                    {round.traitorCount} Traitors
                 </p>
             </div>
         );
     }
+}
+
+// the traitors win if five teams in a row are rejected
+function RejectedTeams({ count }) {
+    return (
+        <div
+            className="section-label flex items-center justify-center gap-2"
+            aria-label={count + " of 5 teams rejected in a row"}
+        >
+            Rejected teams
+            {[1, 2, 3, 4, 5].map((n) => (
+                <span
+                    key={n}
+                    className={
+                        "size-2.5 rounded-full border border-error " +
+                        (n <= count ? "bg-error" : "")
+                    }
+                />
+            ))}
+        </div>
+    );
 }

@@ -24,20 +24,25 @@ export default class StartPage extends Component {
         var ourRole = me.isTraitor ? "traitor" : "faithful";
 
         return (
-            <div className="round-info-bar">
-                <p className="so-h2">Welcome to Snakeout!</p>
-                <RoleViewer role={ourRole} players={data.players} me={me} />
-                <br />
-                <p>Missions:</p>
-                <MissionBar missions={data.missions} />
-                <br />
-                <p>Players:</p>
-                <PlayerList players={data.players} />
+            <div className="round-info-bar flex flex-col gap-5">
+                <p className="so-h2">Welcome to Traitors</p>
                 <p>
-                    {data.players.length - data.traitorCount} loyalists |{" "}
-                    {data.traitorCount} snakes
+                    Among you are {data.traitorCount} traitors. Check your role
+                    in secret, then begin.
                 </p>
-                <SOButton onClick={this.doneViewingStart.bind(this)}>
+                <RoleViewer role={ourRole} players={data.players} me={me} />
+                <p className="section-label">Missions</p>
+                <MissionBar
+                    missions={data.missions}
+                    numberOfPlayers={data.players.length}
+                />
+                <p className="section-label">Players</p>
+                <PlayerList players={data.players} />
+                <p className="section-label">
+                    {data.players.length - data.traitorCount} Faithful ·{" "}
+                    {data.traitorCount} Traitors
+                </p>
+                <SOButton primary onClick={this.doneViewingStart.bind(this)}>
                     Begin
                 </SOButton>
             </div>

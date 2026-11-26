@@ -15,11 +15,11 @@ export default class Waiting extends Component {
                 <p>{this.props.message}</p>
                 <PlayerList players={round.waitingList} />
                 {disconnected && (
-                    <div>
-                        <p>Disconnected Players: </p>
+                    <div className="alert alert-vertical alert-warning alert-soft">
+                        <p>These players left the game:</p>
                         <PlayerList players={round.disconnectedList} />
                         <p>
-                            The game will continue when someone joins this game
+                            The game will continue when someone joins the party
                             to take their place.
                         </p>
                         {me.isAdmin && (

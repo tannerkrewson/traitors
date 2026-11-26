@@ -41,11 +41,12 @@ export default class VotingPhase extends Component {
                     to go on Mission
                     <span> {currentMission.number}.</span>
                 </p>
-                <div>
+                <p className="section-label">Everyone will see how you vote.</p>
+                <div className="grid grid-cols-2 gap-3">
                     <SOButton onClick={this.voteNay.bind(this)}>
                         Reject
                     </SOButton>
-                    <SOButton onClick={this.voteYay.bind(this)}>
+                    <SOButton primary onClick={this.voteYay.bind(this)}>
                         Approve
                     </SOButton>
                 </div>

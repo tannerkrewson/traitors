@@ -30,24 +30,27 @@ export default class OnMissionScreen extends Component {
                 <PlayerList players={currentMission.playersOnMission} />
                 {!twoFailNotice && (
                     <p>
-                        All players must pass this mission for it to succeed.
-                        This mission will fail even if just one player fails it.
+                        Everyone must pass this mission for it to succeed. A
+                        single sabotage will fail it.
                     </p>
                 )}
                 {twoFailNotice && (
                     <p>
-                        All but one player must pass this mission for it to
-                        succeed. This mission will fail if two or more players
-                        fail it.
+                        This mission fails only if two or more players sabotage
+                        it. A single sabotage is not enough.
                     </p>
                 )}
-                <p>
-                    The other players will not know how you voted, but they will
-                    know how many pass and fail votes were cast.
+                <p className="section-label">
+                    Nobody will know how you voted, only how many passed and
+                    sabotaged.
                 </p>
-                <div>
-                    <SOButton onClick={this.voteNay.bind(this)}>Fail</SOButton>
-                    <SOButton onClick={this.voteYay.bind(this)}>Pass</SOButton>
+                <div className="grid grid-cols-2 gap-3">
+                    <SOButton onClick={this.voteNay.bind(this)}>
+                        Sabotage
+                    </SOButton>
+                    <SOButton primary onClick={this.voteYay.bind(this)}>
+                        Pass
+                    </SOButton>
                 </div>
             </div>
         );
