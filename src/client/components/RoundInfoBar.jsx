@@ -2,7 +2,6 @@ import React, { Component } from "react";
 
 import MissionBar from "./MissionBar";
 import RoleViewer from "./RoleViewer";
-import GameCode from "./GameCode";
 
 export default class RoundInfoBar extends Component {
     render() {
@@ -38,9 +37,6 @@ export default class RoundInfoBar extends Component {
                     {round.players.length - round.snakeCount} loyalists |{" "}
                     {round.snakeCount} snakes
                 </p>
-                {!this.props.ROCKETCRAB_MODE && (
-                    <GameCode code={round.gameCode} />
-                )}
             </div>
         );
     }

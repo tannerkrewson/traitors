@@ -1,110 +1,74 @@
-import io from "socket.io-client";
+// Sends this player's moves to the game through Nova. The method names are
+// the events the old Socket.IO server listened for.
+function Connection(onStateUpdate, nova = window.nova) {
+    this.nova = nova;
+    this.onError = function () {};
 
-function Connection(onStateUpdate) {
-    this.socket = io();
-
-    this.functionsToRunOnUpdateWaitingList = [];
-
-    var self = this;
-    this.socket.on("updateState", function (data) {
-        onStateUpdate(data);
-    });
-
-    this.socket.on("transferToRocketcrab", function (link) {
-        window.location.href = link;
-    });
-
-    this.socket.on("disconnect", function () {
-        //refresh the page
-        location.reload();
+    nova.state.onChange(onStateUpdate);
+    nova.onStart(function () {
+        var state = nova.state.get();
+        if (state) onStateUpdate(state);
     });
 }
 
-Connection.prototype.newGame = function (name) {
-    this.send("newGame", {
-        name,
-    });
-};
+const ids = (players) => players.map((player) => player.id);
 
-Connection.prototype.joinGame = function (code, name) {
-    this.send("joinGame", {
-        code,
-        name,
-    });
-};
-
-Connection.prototype.startGame = function (code) {
-    this.send("startGame", {
-        code,
-    });
+Connection.prototype.startGame = function () {
+    return this.send("startGame");
 };
 
 Connection.prototype.vote = function (vote) {
-    this.send("selectionVote", {
+    return this.send("vote", {
         vote,
     });
-    gtag("event", "pre_mission_vote", {
-        event_label: vote,
-    });
-    gtag("event", "vote");
 };
 
 Connection.prototype.missionVote = function (vote) {
-    this.send("missionVote", {
+    return this.send("missionVote", {
         vote,
     });
-    gtag("event", "mission_vote", {
-        event_label: vote,
-    });
-    gtag("event", "vote");
 };
 
 Connection.prototype.updateSelectedPlayers = function (selectedPlayers) {
-    this.send("updateSelectedPlayers", {
-        selectedPlayers,
+    return this.send("updateSelectedPlayers", {
+        selectedPlayers: ids(selectedPlayers),
     });
 };
 
 Connection.prototype.submitSelectedPlayers = function (selectedPlayers) {
-    this.send("submitSelectedPlayers", {
-        selectedPlayers,
+    return this.send("submitSelectedPlayers", {
+        selectedPlayers: ids(selectedPlayers),
     });
 };
 
 Connection.prototype.doneViewingStart = function () {
-    this.send("doneViewingStart", {});
+    return this.send("doneViewingStart");
 };
 
 Connection.prototype.doneViewingResults = function () {
-    this.send("doneViewingResults", {});
+    return this.send("doneViewingResults");
 };
 
 Connection.prototype.doneViewingVoteResults = function () {
-    this.send("doneViewingVoteResults", {});
+    return this.send("doneViewingVoteResults");
 };
 
 Connection.prototype.readyToViewResults = function () {
-    this.send("readyToViewResults", {});
+    return this.send("readyToViewResults");
 };
 
 Connection.prototype.tryReplace = function (data) {
-    this.send("tryReplace", data);
+    return this.send("replacePlayer", data);
 };
 
-Connection.prototype.requestTransferToRocketcrab = function () {
-    this.send("requestTransferToRocketcrab", {});
+Connection.prototype.endGame = function () {
+    return this.send("endGame");
 };
 
-Connection.prototype.send = function (event, data) {
-    this.socket.emit(event, data);
-};
-
-Connection.prototype.on = function (event, next) {
-    this.socket.on(event, next);
-};
-
-Connection.prototype.once = function (event, next) {
-    this.socket.once(event, next);
+Connection.prototype.send = function (type, payload = {}) {
+    return this.nova
+        .dispatch({ type, payload })
+        .catch((error) => this.onError(error));
 };
 
 export default Connection;

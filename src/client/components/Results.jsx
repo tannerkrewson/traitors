@@ -124,11 +124,7 @@ export default class Results extends Component {
                 <SOButton onClick={this.doneViewingResults.bind(this)}>
                     Next
                 </SOButton>
-                <RoundInfoBar
-                    round={data}
-                    me={me}
-                    ROCKETCRAB_MODE={this.props.server.ROCKETCRAB_MODE}
-                />
+                <RoundInfoBar round={data} me={me} />
             </div>
         );
     }

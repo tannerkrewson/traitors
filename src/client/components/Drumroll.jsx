@@ -18,11 +18,7 @@ export default class Drumroll extends Component {
                 <SOButton onClick={this.readyToViewResults.bind(this)}>
                     Next
                 </SOButton>
-                <RoundInfoBar
-                    round={round}
-                    me={me}
-                    ROCKETCRAB_MODE={this.props.server.ROCKETCRAB_MODE}
-                />
+                <RoundInfoBar round={round} me={me} />
             </div>
         );
     }

@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-
-import MainMenu from "./pages/MainMenu";
-import HowToPlay from "./pages/HowToPlay";
 
 import Footer from "./components/Footer";
+import Loading from "./components/Loading";
+import Lobby from "./components/Lobby";
+import Replace from "./components/Replace";
 import StartPage from "./components/StartPage";
 import Waiting from "./components/Waiting";
 import SelectionPhase from "./components/SelectionPhase";
@@ -16,23 +15,51 @@ import Drumroll from "./components/Drumroll";
 import Results from "./components/Results";
 
 import Connection from "./utils/Connection";
-import RRButton from "./components/RRButton";
 
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            page: MainMenu,
+            page: Loading,
+            error: "",
+            connection: window.nova && window.nova.connectionStatus,
         };
 
         this.changePage = (page, pageProps) => {
             this.setState({ page, pageProps });
         };
 
+        if (!window.nova) return;
+
         var self = this;
         this.server = new Connection(function (data) {
             var round = data.round;
             var me = data.you;
+
+            self.setState({ error: "" });
+
+            // between games
+            if (!round) {
+                self.changePage(Lobby, { players: data.lobby });
+                return;
+            }
+
+            // joined while a game is going
+            if (!me) {
+                if (round.disconnectedList.length > 0) {
+                    self.changePage(Replace, round);
+                } else {
+                    self.changePage(Loading, {
+                        message:
+                            "A game is in progress. You will be dealt in next game.",
+                    });
+                }
+                return;
+            }
+
+            // the party leader sends the game's analytics events
+            me.isAdmin =
+                self.server.nova.player?.id === self.server.nova.leaderId;
 
             //determine if the server is waiting on us
             var isWaiting = (function () {
@@ -75,17 +102,7 @@ export default class App extends Component {
                     break;
                 case "voting":
                     //determine if we have already voted
-                    var alreadyVoted = false;
-                    var votes = round.currentMission.votes;
-                    var me = data.you;
-                    for (var i = 0; i < votes.length; i++) {
-                        if (votes[i].playerId === me.id) {
-                            alreadyVoted = true;
-                            break;
-                        }
-                    }
-
-                    if (!alreadyVoted) {
+                    if (isWaiting) {
                         self.changePage(VotingPhase, data);
                     } else {
                         data.message = "Waiting for players to vote...";
@@ -118,19 +135,7 @@ export default class App extends Component {
                     }
 
                     //if we are on the mission, figure out if we've voted already
-                    var hasntVotedYet;
-                    var missionVotes = round.currentMission.missionVotes;
-                    if (isOnMission) {
-                        hasntVotedYet = true;
-                        for (var i = 0; i < missionVotes.length; i++) {
-                            if (missionVotes[i].playerId === me.id) {
-                                hasntVotedYet = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (isOnMission && hasntVotedYet) {
+                    if (isOnMission && isWaiting) {
                         self.changePage(MissionPhase, data);
                     } else {
                         data.message = "Waiting for the mission to complete...";
@@ -159,63 +164,45 @@ export default class App extends Component {
             }
         });
 
-        const urlParams = new URLSearchParams(window.location.search);
+        this.server.onError = (error) =>
+            this.setState({ error: error.message });
+        window.nova.onConnectionChange((connection) =>
+            this.setState({ connection }),
+        );
+    }
 
-        //join the dev game if path was ?dev=true
-        if (urlParams.get("dev") === "true") {
-            console.log("Attempting to join dev game");
-            this.server.joinGame(
-                "ffff",
-                Math.random().toString().substring(2, 6),
-            );
-        }
-
-        const isRocketcrab = urlParams.get("rocketcrab") === "true";
-        const name = urlParams.get("name");
-        //const isHost = urlParams.get("ishost") === "true";
-        const code = urlParams.get("code");
-
-        this.server.ROCKETCRAB_MODE = isRocketcrab && name && code;
-
-        if (this.server.ROCKETCRAB_MODE) {
-            this.server.joinGame(code, name);
-        }
+    componentDidMount() {
+        if (window.nova) window.nova.ready();
     }
 
     render() {
+        const reconnecting = ["reconnecting", "suspended"].includes(
+            this.state.connection,
+        );
         return (
-            <Router>
-                <div className="main-content text-center" id="snakeout">
-                    <div className="so-h1">Snakeout 🐍</div>
-                    <hr />
-                    <br />
-                    <Routes>
-                        <Route
-                            path="/"
-                            element={
-                                <this.state.page
-                                    changePage={this.changePage}
-                                    server={this.server}
-                                    {...this.state.pageProps}
-                                />
-                            }
-                        />
-                        <Route path="/how-to-play" element={<HowToPlay />} />
-                        <Route
-                            path="*"
-                            element={
-                                <div className="text-center">
-                                    <p>404 - Not Found!</p>
-                                    <RRButton path="/">
-                                        Back to Snakeout
-                                    </RRButton>
-                                </div>
-                            }
-                        />
-                    </Routes>
-                    <Footer />
-                </div>
-            </Router>
+            <div className="main-content text-center" id="snakeout">
+                <div className="so-h1">Snakeout 🐍</div>
+                <hr />
+                <br />
+                {reconnecting && <p role="status">Reconnecting…</p>}
+                {this.state.error && <p role="alert">{this.state.error}</p>}
+                {this.server ? (
+                    <this.state.page
+                        changePage={this.changePage}
+                        server={this.server}
+                        {...this.state.pageProps}
+                    />
+                ) : (
+                    <p>
+                        Play Snakeout with friends on{" "}
+                        <a href="https://rocketcrab.com/transfer/snakeout">
+                            Rocketcrab
+                        </a>
+                        .
+                    </p>
+                )}
+                <Footer />
+            </div>
         );
     }
 }

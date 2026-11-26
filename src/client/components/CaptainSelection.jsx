@@ -19,7 +19,6 @@ export default class CaptainSelection extends Component {
         var numPlayersToSelect = currentMission.playersNeeded;
 
         //if the user has selected the required number of players
-        var ready;
         if (selectedPlayers.length === numPlayersToSelect) {
             this.setState({
                 ready: true,

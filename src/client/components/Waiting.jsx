@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import PlayerList from "./PlayerList";
 import RoundInfoBar from "./RoundInfoBar";
+import SOButton from "./SOButton";
 
 export default class Waiting extends Component {
     render() {
@@ -21,13 +22,16 @@ export default class Waiting extends Component {
                             The game will continue when someone joins this game
                             to take their place.
                         </p>
+                        {me.isAdmin && (
+                            <SOButton
+                                onClick={() => this.props.server.endGame()}
+                            >
+                                End Game
+                            </SOButton>
+                        )}
                     </div>
                 )}
-                <RoundInfoBar
-                    round={round}
-                    me={me}
-                    ROCKETCRAB_MODE={this.props.server.ROCKETCRAB_MODE}
-                />
+                <RoundInfoBar round={round} me={me} />
             </div>
         );
     }

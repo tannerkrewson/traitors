@@ -49,11 +49,7 @@ export default class VotingPhase extends Component {
                         Approve
                     </SOButton>
                 </div>
-                <RoundInfoBar
-                    round={data}
-                    me={me}
-                    ROCKETCRAB_MODE={this.props.server.ROCKETCRAB_MODE}
-                />
+                <RoundInfoBar round={data} me={me} />
             </div>
         );
     }

@@ -11,7 +11,6 @@ export default class OnMissionScreen extends Component {
         this.props.server.missionVote(false);
     }
     render() {
-        var me = this.props.you;
         var data = this.props.round;
         var currentMission = data.currentMission;
 

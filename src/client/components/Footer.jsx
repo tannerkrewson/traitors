@@ -11,7 +11,7 @@ export default class Footer extends Component {
                 </a>
                 <br />
                 <a
-                    href="https://github.com/tannerkrewson/snakeout"
+                    href="https://github.com/tannerkrewson/traitors"
                     target="_blank"
                 >
                     View on GitHub

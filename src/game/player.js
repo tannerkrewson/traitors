@@ -2,49 +2,34 @@
 // Snakeout Player
 //
 
-function Player(name, socket, id) {
-    this.name = name;
-    this.socket = socket;
-    this.id = id;
-    this.isAdmin = false;
-    this.isConnected = true;
-    this.isSnake;
-    this.isCaptain = false;
-    this.hasBeenCaptain = false;
+// A seat in a round. The seat keeps its id when a newcomer replaces the
+// party member sitting in it.
+export function Player(name, partyId, id) {
+    return {
+        name,
+        partyId,
+        id,
+        isConnected: true,
+        isSnake: false,
+        isCaptain: false,
+        hasBeenCaptain: false,
+    };
 }
 
-Player.prototype.getJson = function () {
-    return {
-        name: this.name,
-        id: this.id,
-        isAdmin: this.isAdmin,
-        isConnected: this.isConnected,
-        isSnake: this.isSnake,
-        isCaptain: this.isCaptain,
-        isOnMission: this.isOnMission,
-        hasBeenCaptain: this.hasBeenCaptain,
+Player.getJson = function (player, showRole) {
+    var json = {
+        name: player.name,
+        id: player.id,
+        isConnected: player.isConnected,
+        isCaptain: player.isCaptain,
+        hasBeenCaptain: player.hasBeenCaptain,
     };
+    if (showRole) json.isSnake = player.isSnake;
+    return json;
 };
 
-Player.prototype.send = function (event, round) {
-    this.socket.emit(event, {
-        you: this.getJson(),
-        round,
-    });
+Player.replaceConnection = function (player, partyPlayer) {
+    player.partyId = partyPlayer.id;
+    player.name = partyPlayer.name;
+    player.isConnected = true;
 };
-
-Player.prototype.sendThen = function (event, data, onEvent, next) {
-    this.send(event, data);
-    this.socket.once(onEvent, next);
-};
-
-Player.prototype.makeAdmin = function () {
-    this.isAdmin = true;
-};
-
-Player.prototype.replaceConnection = function (socket) {
-    this.socket = socket;
-    this.isConnected = true;
-};
-
-module.exports = Player;

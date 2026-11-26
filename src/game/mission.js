@@ -2,106 +2,106 @@
 // Snakeout Mission
 //
 
-function Mission(number, playersNeeded, numberOfPlayersInTheGame) {
-    this.number = number;
-    this.playersNeeded = playersNeeded;
-    this.status = false;
-    this.numberOfPlayersInTheGame = numberOfPlayersInTheGame;
+export function Mission(number, playersNeeded, numberOfPlayersInTheGame) {
+    return {
+        number,
+        playersNeeded,
+        status: false,
+        numberOfPlayersInTheGame,
 
-    this.potentialPlayersOnMission = [];
-    this.playersOnMission = [];
-    this.votes = [];
-    this.missionVotes = [];
-
-    this.allPlayerVoted;
-    this.allPlayersMissionVoted;
+        potentialPlayersOnMission: [],
+        playersOnMission: [],
+        votes: [],
+        missionVotes: [],
+    };
 }
 
-Mission.prototype.startVote = function (onAllPlayersVoted) {
-    this.onAllPlayersVoted = onAllPlayersVoted;
-    this.votes = [];
+Mission.startVote = function (mission) {
+    mission.votes = [];
 };
 
 // vote: true=approve; false=reject;
-Mission.prototype.addVote = function (playerId, vote) {
-    this.votes.push(new Vote(playerId, vote));
-
-    //once all of the players vote
-    if (this.numberOfPlayersInTheGame === this.votes.length) {
-        //check if the vote was successful
-        var wasVoteSuccessful;
-        var approveCount = 0;
-        var rejectCount = 0;
-        for (var i = 0; i < this.votes.length; i++) {
-            if (this.votes[i].vote) {
-                approveCount++;
-            } else {
-                rejectCount++;
-            }
-        }
-
-        // if there is a tie, the vote fails
-        if (approveCount > rejectCount) {
-            wasVoteSuccessful = true;
-        } else {
-            wasVoteSuccessful = false;
-        }
-
-        this.onAllPlayersVoted(wasVoteSuccessful);
-    }
+Mission.addVote = function (mission, playerId, vote) {
+    mission.votes.push(Vote(playerId, vote));
 };
 
-Mission.prototype.putSelectedPlayersOnTheMission = function () {
+Mission.allPlayersVoted = function (mission) {
+    return mission.numberOfPlayersInTheGame === mission.votes.length;
+};
+
+Mission.wasVoteSuccessful = function (mission) {
+    //check if the vote was successful
+    var wasVoteSuccessful;
+    var approveCount = 0;
+    var rejectCount = 0;
+    for (var i = 0; i < mission.votes.length; i++) {
+        if (mission.votes[i].vote) {
+            approveCount++;
+        } else {
+            rejectCount++;
+        }
+    }
+
+    // if there is a tie, the vote fails
+    if (approveCount > rejectCount) {
+        wasVoteSuccessful = true;
+    } else {
+        wasVoteSuccessful = false;
+    }
+
+    return wasVoteSuccessful;
+};
+
+Mission.putSelectedPlayersOnTheMission = function (mission) {
     // takes the potentialPlayersOnMission and makes them the
     // actual playersOnMission
-    this.playersOnMission = this.potentialPlayersOnMission;
-    this.potentialPlayersOnMission = [];
+    mission.playersOnMission = mission.potentialPlayersOnMission;
+    mission.potentialPlayersOnMission = [];
 };
 
-Mission.prototype.startMission = function (onAllPlayersMissionVoted) {
-    this.onAllPlayersMissionVoted = onAllPlayersMissionVoted;
-    this.votes = [];
+Mission.startMission = function (mission) {
+    mission.missionVotes = [];
 };
 
 // vote: true=approve; false=reject;
-Mission.prototype.addMissionVote = function (playerId, vote) {
-    this.missionVotes.push(new Vote(playerId, vote));
+Mission.addMissionVote = function (mission, playerId, vote) {
+    mission.missionVotes.push(Vote(playerId, vote));
+};
 
-    //once all of the players vote
-    if (this.playersOnMission.length === this.missionVotes.length) {
-        //check if the vote was successful
-        var wasVoteSuccessful;
-        var approveCount = 0;
-        var rejectCount = 0;
-        for (var i = 0; i < this.missionVotes.length; i++) {
-            if (this.missionVotes[i].vote) {
-                approveCount++;
-            } else {
-                rejectCount++;
-            }
-        }
+Mission.allPlayersMissionVoted = function (mission) {
+    return mission.playersOnMission.length === mission.missionVotes.length;
+};
 
-        if (rejectCount === 0) {
-            wasVoteSuccessful = true;
-        } else if (
-            this.number === 4 &&
-            this.numberOfPlayersInTheGame >= 7 &&
-            rejectCount === 1
-        ) {
-            // if it is the 4th mission and the game has 7 or more players,
-            // the mission needs two fail votes to fail
-            wasVoteSuccessful = true;
+Mission.wasMissionSuccessful = function (mission) {
+    //check if the vote was successful
+    var wasVoteSuccessful;
+    var approveCount = 0;
+    var rejectCount = 0;
+    for (var i = 0; i < mission.missionVotes.length; i++) {
+        if (mission.missionVotes[i].vote) {
+            approveCount++;
         } else {
-            wasVoteSuccessful = false;
+            rejectCount++;
         }
-
-        this.onAllPlayersMissionVoted(wasVoteSuccessful);
     }
+
+    if (rejectCount === 0) {
+        wasVoteSuccessful = true;
+    } else if (
+        mission.number === 4 &&
+        mission.numberOfPlayersInTheGame >= 7 &&
+        rejectCount === 1
+    ) {
+        // if it is the 4th mission and the game has 7 or more players,
+        // the mission needs two fail votes to fail
+        wasVoteSuccessful = true;
+    } else {
+        wasVoteSuccessful = false;
+    }
+
+    return wasVoteSuccessful;
 };
 
 function Vote(playerId, vote) {
-    this.playerId = playerId;
-    this.vote = vote;
+    return { playerId, vote };
 }
-
-module.exports = Mission;

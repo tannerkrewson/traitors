@@ -11,11 +11,7 @@ export default class SelectionPhase extends Component {
         return (
             <div className="selection-phase">
                 <CaptainSelection {...this.props} />
-                <RoundInfoBar
-                    round={data}
-                    me={me}
-                    ROCKETCRAB_MODE={this.props.server.ROCKETCRAB_MODE}
-                />
+                <RoundInfoBar round={data} me={me} />
             </div>
         );
     }

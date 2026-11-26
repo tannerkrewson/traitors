@@ -4,7 +4,9 @@ export default class Loading extends Component {
     render() {
         return (
             <div>
-                <p>Loading...</p>
+                <p>
+                    {this.props.message || "Waiting for the game to start..."}
+                </p>
                 <br />
             </div>
         );

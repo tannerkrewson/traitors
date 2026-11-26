@@ -6,6 +6,14 @@ import PlayerList from "./PlayerList";
 import SOButton from "./SOButton";
 
 export default class StartPage extends Component {
+    componentDidMount() {
+        if (this.props.you.isAdmin) {
+            gtag("event", "game_start");
+            gtag("event", "number_of_players", {
+                event_label: this.props.round.players.length,
+            });
+        }
+    }
     doneViewingStart() {
         this.props.server.doneViewingStart();
     }

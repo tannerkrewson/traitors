@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 
-import RRButton from "../components/RRButton";
-
 export default class HowToPlay extends Component {
     render() {
         return (
@@ -220,10 +218,6 @@ export default class HowToPlay extends Component {
                     </a>
                     . Hope you like it! &lt;3
                 </p>
-                <br />
-                <div className="text-center">
-                    <RRButton path="/">Back to Snakeout</RRButton>
-                </div>
                 <br />
             </div>
         );

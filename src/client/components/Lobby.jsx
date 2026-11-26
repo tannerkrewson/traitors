@@ -1,26 +1,14 @@
 import React, { Component } from "react";
 
-import GameCode from "./GameCode";
 import PlayerList from "./PlayerList";
 import SOButton from "./SOButton";
 
 export default class Lobby extends Component {
     render() {
-        var gameCode = this.props.code;
         var numPlayersInLobby = this.props.players.length;
 
         var startGame = () => {
-            this.props.server.startGame(gameCode);
-            gtag("event", "game_start");
-            gtag("event", "number_of_players", {
-                event_label: numPlayersInLobby,
-            });
-        };
-
-        var requestTransferToRocketcrab = () => {
-            // TODO: disable the button after it is clicked in case there is delay
-
-            this.props.server.requestTransferToRocketcrab();
+            this.props.server.startGame();
         };
 
         // display how many more players are needed to start the game
@@ -49,27 +37,10 @@ export default class Lobby extends Component {
 
         return (
             <div className="lobby">
-                {!this.props.server.ROCKETCRAB_MODE && (
-                    <GameCode code={this.props.code} />
-                )}
                 <p>Players:</p>
                 <PlayerList players={this.props.players} />
                 <p>{playersNeededMessage}</p>
-                {!this.props.server.ROCKETCRAB_MODE && (
-                    <div>
-                        <SOButton onClick={requestTransferToRocketcrab}>
-                            Transfer to 🚀🦀
-                        </SOButton>
-                    </div>
-                )}
                 <div>
-                    <SOButton
-                        onClick={() => {
-                            this.props.server.socket.close();
-                        }}
-                    >
-                        Leave Game
-                    </SOButton>
                     <SOButton onClick={startGame} disabled={notReady}>
                         Start Game
                     </SOButton>

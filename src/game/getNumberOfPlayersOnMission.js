@@ -1,4 +1,4 @@
-module.exports = function (numberOfPlayers, missionNumber) {
+export default function (numberOfPlayers, missionNumber) {
     if (numberOfPlayers < 5 || numberOfPlayers > 10) {
         return false;
     }
@@ -55,4 +55,4 @@ module.exports = function (numberOfPlayers, missionNumber) {
     playersXmission[10][5] = 5;
 
     return playersXmission[numberOfPlayers][missionNumber];
-};
+}

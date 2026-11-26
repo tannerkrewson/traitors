@@ -2,28 +2,34 @@
 // Snakeout Round
 //
 
-var Mission = require("./mission");
+import { Mission } from "./mission.js";
 
-var shuffle = require("knuth-shuffle").knuthShuffle;
-var getNumberOfPlayersOnMission = require("./getNumberOfPlayersOnMission");
+import knuthShuffle from "knuth-shuffle";
+import getNumberOfPlayersOnMission from "./getNumberOfPlayersOnMission.js";
 
-function Round(roundNumber, code, players, onEnd) {
-    this.roundNumber = roundNumber;
-    this.code = code;
-    this.players = players;
-    this.onEnd = onEnd;
-    this.onDoneWaiting;
-    this.disconnectedPlayers = [];
-    this.socketsViewingReplacePage = [];
-    this.playersBeingWaitedOn = [];
-    this.missionNumber = 0;
-    this.missions = [];
-    this.currentCaptain;
-    this.captainsSelectedPlayers = [];
-    this.snakeCount = this.getNumberOfSnakes();
-    this.phase = "lobby";
+var shuffle = knuthShuffle.knuthShuffle;
+
+// A round is plain JSON so that Nova can keep it in the game state. Each
+// function below takes the round and changes it in place.
+export function Round(roundNumber, players) {
+    var round = {
+        roundNumber,
+        players,
+        playersBeingWaitedOn: [],
+        missionNumber: 0,
+        missions: [],
+        captainsSelectedPlayers: [],
+        snakeCount: Round.getNumberOfSnakes(players.length),
+        rejectedTeams: 0,
+        winner: false,
+        // the mission's result, kept secret until everyone is ready for it
+        pendingMissionResult: null,
+        ended: false,
+        phase: "lobby",
+    };
     /* Phase List:
 		lobby
+		start
 		selection
 		voting
 		voting_results
@@ -36,292 +42,165 @@ function Round(roundNumber, code, players, onEnd) {
     //i is the mission number
     for (var i = 1; i <= 5; i++) {
         var numPlayersForMission = getNumberOfPlayersOnMission(
-            this.players.length,
+            players.length,
             i,
         );
-        var newMission = new Mission(
-            i,
-            numPlayersForMission,
-            this.players.length,
-        );
-        this.missions.push(newMission);
+        var newMission = Mission(i, numPlayersForMission, players.length);
+        round.missions.push(newMission);
     }
+
+    return round;
 }
 
-Round.prototype.getCurrentMission = function () {
-    return this.missions[this.missionNumber - 1];
+Round.getCurrentMission = function (round) {
+    return round.missions[round.missionNumber - 1];
 };
 
-Round.prototype.changePhase = function (phase) {
-    this.phase = phase;
+Round.changePhase = function (round, phase) {
+    round.phase = phase;
 };
 
-Round.prototype.sendState = function (player) {
-    player.send("updateState", this.getState());
+Round.getPlayer = function (round, id) {
+    return round.players.find((player) => player.id === id);
 };
 
-Round.prototype.sendStateToAll = function () {
-    var self = this;
-    this.players.forEach(function (player) {
-        self.sendState(player);
-    });
-};
-
-Round.prototype.onceOnAll = function (event, next) {
-    this.players.forEach(function (player) {
-        player.socket.once(event, function () {
-            next(player);
-        });
-    });
-};
-
-Round.prototype.getIndexOfPlayerOnWaitingList = function (player) {
-    for (var i = 0; i < this.playersBeingWaitedOn.length; i++) {
-        var playerIdToCheck = this.playersBeingWaitedOn[i].id;
-        if (player.id === playerIdToCheck) {
-            return i;
-        }
-    }
-    return -1;
-};
-
-Round.prototype.removePlayerFromWaitingList = function (player) {
+Round.removePlayerFromWaitingList = function (round, player) {
     // see if this player is in the waiting list
-    var indexOfPlayer = this.getIndexOfPlayerOnWaitingList(player);
+    var indexOfPlayer = round.playersBeingWaitedOn.indexOf(player.id);
 
     if (indexOfPlayer > -1) {
         //remove the player from the array
-        this.playersBeingWaitedOn.splice(indexOfPlayer, 1);
+        round.playersBeingWaitedOn.splice(indexOfPlayer, 1);
         return true;
     }
     return false;
 };
 
-Round.prototype.waitFor = function (
-    playersToWaitOn,
-    eventToWaitFor,
-    onPlayerDone,
-    onAllDone,
-) {
-    this.playersBeingWaitedOn = playersToWaitOn.slice();
-    this.onAllDone = onAllDone;
-
-    if (!eventToWaitFor) {
-        eventToWaitFor = "done";
-    }
-
-    // if the inputed player list does not have sockets attached,
-    // we get 'em because we need 'em
-    if (!this.playersBeingWaitedOn[0].socket) {
-        this.playersBeingWaitedOn = this.getPlayerListWithSockets(
-            this.playersBeingWaitedOn,
-        );
-    }
-
-    var self = this;
-    this.playersBeingWaitedOn.forEach(function (player) {
-        player.socket.once(eventToWaitFor, function (data) {
-            self.removePlayerFromWaitingList(player);
-
-            //if the onPlayerDone function was passed, run it
-            if (onPlayerDone) {
-                onPlayerDone(player, data);
-            }
-
-            //if we aren't waiting on any more players, continue with whatever
-            // and no players are disconnected
-            if (
-                self.onAllDone &&
-                self.playersBeingWaitedOn.length === 0 &&
-                self.disconnectedPlayers.length === 0
-            ) {
-                var temp = self.onAllDone;
-                self.onAllDone = () => {};
-                temp();
-            }
-        });
-    });
+Round.waitFor = function (round, playersToWaitOn) {
+    round.playersBeingWaitedOn = playersToWaitOn.map((player) => player.id);
 };
 
-Round.prototype.checkForWin = function () {
+// ran when a player hits next on a screen that waits for everyone
+Round.done = function (round, player, phase) {
+    if (round.phase !== phase) {
+        throw new Error("The game has already moved on.");
+    }
+    if (!Round.removePlayerFromWaitingList(round, player)) {
+        throw new Error("You are already done.");
+    }
+    Round.checkIfDone(round);
+};
+
+//if we aren't waiting on any more players, continue with whatever
+// and no players are disconnected
+Round.checkIfDone = function (round) {
+    if (
+        round.playersBeingWaitedOn.length > 0 ||
+        Round.getDisconnectedPlayers(round).length > 0
+    ) {
+        return;
+    }
+    switch (round.phase) {
+        case "start":
+            //ran once everyone is ready to start
+            Round.startSelectionPhase(round);
+            break;
+        case "voting_results":
+            Round.doneViewingVoteResults(round);
+            break;
+        case "drumroll":
+            // ran once everyone is ready to view the mission results
+            Round.processResultsOfMission(round, round.pendingMissionResult);
+            Round.sendMissionResults(round);
+            break;
+        case "mission_results":
+            Round.doneViewingResults(round);
+            break;
+    }
+};
+
+Round.checkForWin = function (round) {
     var snakeWins = 0;
     var loyalistWins = 0;
-    for (var i = 0; i < this.missions.length; i++) {
-        var thisMission = this.missions[i];
+    for (var i = 0; i < round.missions.length; i++) {
+        var thisMission = round.missions[i];
         if (thisMission.status === "snake") {
             snakeWins++;
         } else if (thisMission.status === "loyalist") {
             loyalistWins++;
         }
     }
-    if (snakeWins === 3 || loyalistWins === 3) {
-        return true;
-    } else {
-        return false;
+    if (snakeWins === 3) {
+        round.winner = "snake";
+    } else if (loyalistWins === 3) {
+        round.winner = "loyalist";
     }
+    return !!round.winner;
 };
 
-Round.prototype.getJsonPlayersOf = function (oldPlayerList) {
-    var newPlayersList = [];
-    oldPlayerList.forEach(function (player) {
-        if (player.getJson) {
-            newPlayersList.push(player.getJson());
-        } else {
-            newPlayersList.push(player);
-        }
-    });
-    return newPlayersList;
+Round.getDisconnectedPlayers = function (round) {
+    return round.players.filter((player) => !player.isConnected);
 };
 
-Round.prototype.getJsonPlayers = function () {
-    return this.getJsonPlayersOf(this.players);
+Round.findReplacementFor = function (round, player) {
+    player.isConnected = false;
 };
 
-Round.prototype.getJsonWaitingPlayers = function () {
-    return this.getJsonPlayersOf(this.playersBeingWaitedOn);
-};
-
-Round.prototype.getJsonDisconnectedPlayers = function () {
-    return this.getJsonPlayersOf(this.disconnectedPlayers);
-};
-
-Round.prototype.findReplacementFor = function (player) {
-    this.disconnectedPlayers.push(player);
-
-    this.sendStateToAll();
-    this.updateReplacePageDisconnectedPlayers();
-};
-
-Round.prototype.replacePlayer = function (playerToReplaceId, name, socket) {
-    for (var i = 0; i < this.disconnectedPlayers.length; i++) {
-        var playerToReplace = this.disconnectedPlayers[i];
-        if (playerToReplace.id === playerToReplaceId) {
-            playerToReplace.name = name;
-
-            // copy the event listeners from the old socket to the new one
-            // i'd like to say that i came up with this all by myself saving
-            // what could have been hours of work to come up with a different
-            // solution. ✌️
-            // UPDATE: i ended up doing hours of work to fix a bug that I thought
-            // was caused by this, but ended up being something unrelated, so i
-            // reinstated this and deleted the other stuff. oops.
-            socket._events = playerToReplace.socket._events;
-
-            playerToReplace.replaceConnection(socket);
-
-            //delete the player from from disconnectedPlayers
-            this.disconnectedPlayers.splice(i, 1);
-
-            // if there are not players being waited on, and the player we just replaced
-            // was the last person on the disconnectedPlayers list, run the onAllDone
-            // function from the call to waitFor
-            if (
-                this.onAllDone &&
-                this.playersBeingWaitedOn.length === 0 &&
-                this.disconnectedPlayers.length === 0
-            ) {
-                var temp = this.onAllDone;
-                this.onAllDone = () => {};
-                temp();
-            }
-
-            // remove this player from the replace page
-            this.removeReplaceViewer(socket);
-            this.updateReplacePageDisconnectedPlayers();
-
-            this.sendStateToAll();
-            return true;
-        }
+Round.replacePlayer = function (round, playerToReplaceId, partyPlayer) {
+    var playerToReplace = Round.getPlayer(round, playerToReplaceId);
+    if (!playerToReplace || playerToReplace.isConnected) {
+        throw new Error("That player is still here.");
     }
-    return false;
+    playerToReplace.partyId = partyPlayer.id;
+    playerToReplace.name = partyPlayer.name;
+    playerToReplace.isConnected = true;
+
+    // if there are not players being waited on, and the player we just replaced
+    // was the last person on the disconnectedPlayers list, continue
+    Round.checkIfDone(round);
 };
 
-Round.prototype.getPlayersThatNeedToBeReplaced = function () {
-    return this.disconnectedPlayers;
-};
-
-Round.prototype.getPlayerIndexById = function (id) {
-    for (var i = 0; i < this.players.length; i++) {
-        if (this.players[i].id === id) {
-            return i;
-        }
-    }
-    return false;
-};
-
-Round.prototype.getPlayerListWithSockets = function (jsonPlayerList) {
-    var newPlayersList = [];
-    var self = this;
-    jsonPlayerList.forEach(function (jsonPlayer) {
-        var realPlayerIndex = self.getPlayerIndexById(jsonPlayer.id);
-        if (realPlayerIndex > -1) {
-            newPlayersList.push(self.players[realPlayerIndex]);
-        } else {
-            console.log("getPlayerListWithSockets error: invalid index");
-        }
-    });
-    return newPlayersList;
-};
-
-Round.prototype.getState = function () {
-    var currentMission = this.getCurrentMission();
-    return {
-        captainsSelectedPlayers: this.captainsSelectedPlayers,
-        currentMission,
-        disconnectedList: this.getJsonDisconnectedPlayers(),
-        gameCode: this.code,
-        missions: this.missions,
-        phase: this.phase,
-        players: this.getJsonPlayers(),
-        potentialPlayersOnMission: currentMission.potentialPlayersOnMission,
-        snakeCount: this.snakeCount,
-        waitingList: this.getJsonWaitingPlayers(),
-    };
-};
-
-Round.prototype.getNumberOfSnakes = function () {
-    var numOfPlayers = this.players.length;
+Round.getNumberOfSnakes = function (numOfPlayers) {
     if (numOfPlayers === 5 || numOfPlayers === 6) {
         return 2;
-    } else if (numOfPlayers >= 7 || numOfPlayers <= 9) {
+    } else if (numOfPlayers >= 7 && numOfPlayers <= 9) {
         return 3;
     } else if (numOfPlayers === 10) {
         return 4;
     } else {
         //this should not be reached
-        console.log("Error: bad number of players: " + numOfPlayers);
-        return false;
+        throw new Error("Bad number of players: " + numOfPlayers);
     }
 };
 
-Round.prototype.assignRoles = function () {
-    var numOfSnakes = this.snakeCount;
+Round.assignRoles = function (round) {
+    var numOfSnakes = round.snakeCount;
 
-    //shuffle the players in place so that the same
-    //	people are not snakes everytime
-    shuffle(this.players);
+    //shuffle a copy of the players so that the same people are not
+    //	snakes everytime, and the player list does not give them away
+    var shuffledPlayers = shuffle(round.players.slice());
 
-    for (var i = 0; i < this.players.length; i++) {
+    for (var i = 0; i < shuffledPlayers.length; i++) {
         if (numOfSnakes > 0) {
-            this.players[i].isSnake = true;
+            shuffledPlayers[i].isSnake = true;
             numOfSnakes--;
         } else {
-            this.players[i].isSnake = false;
+            shuffledPlayers[i].isSnake = false;
         }
     }
 };
 
-Round.prototype.assignNewCaptain = function () {
+Round.assignNewCaptain = function (round) {
     //get rid of the old captain with good old brute force
-    for (var i = 0; i < this.players.length; i++) {
-        this.players[i].isCaptain = false;
+    for (var i = 0; i < round.players.length; i++) {
+        round.players[i].isCaptain = false;
     }
 
     //check if everyone has been captain
-    var playerCount = this.players.length;
+    var playerCount = round.players.length;
     var hasBeenCaptainCount = 0;
-    for (var i = 0; i < this.players.length; i++) {
-        if (this.players[i].hasBeenCaptain) {
+    for (var i = 0; i < round.players.length; i++) {
+        if (round.players[i].hasBeenCaptain) {
             hasBeenCaptainCount++;
         } else {
             break;
@@ -332,8 +211,8 @@ Round.prototype.assignNewCaptain = function () {
     if (playerCount === hasBeenCaptainCount) {
         //remove the hasBeenCaptain so the game can pick
         //	a new captain
-        for (var i = 0; i < this.players.length; i++) {
-            this.players[i].hasBeenCaptain = false;
+        for (var i = 0; i < round.players.length; i++) {
+            round.players[i].hasBeenCaptain = false;
         }
     }
 
@@ -341,263 +220,222 @@ Round.prototype.assignNewCaptain = function () {
     //	to be captain for this mission
     var indexOfCaptain;
     do {
-        indexOfCaptain = Math.floor(Math.random() * this.players.length);
-    } while (this.players[indexOfCaptain].hasBeenCaptain);
+        indexOfCaptain = Math.floor(Math.random() * round.players.length);
+    } while (round.players[indexOfCaptain].hasBeenCaptain);
 
-    this.players[indexOfCaptain].isCaptain = true;
-    this.players[indexOfCaptain].hasBeenCaptain = true;
-
-    this.currentCaptain = this.players[indexOfCaptain];
+    round.players[indexOfCaptain].isCaptain = true;
+    round.players[indexOfCaptain].hasBeenCaptain = true;
 };
 
-Round.prototype.startRound = function () {
-    this.assignRoles();
-    this.assignNewCaptain();
-    this.prepNextMission(true);
-    this.showStartPage();
+Round.getCaptain = function (round) {
+    return round.players.find((player) => player.isCaptain);
 };
 
-Round.prototype.prepNextMission = function () {
-    this.missionNumber++;
+Round.startRound = function (round) {
+    Round.assignRoles(round);
+    Round.assignNewCaptain(round);
+    Round.prepNextMission(round);
+    Round.showStartPage(round);
+};
+
+Round.prepNextMission = function (round) {
+    round.missionNumber++;
 
     //remove in progress from last mission, if there was a last mission
-    if (this.missionNumber > 1) {
-        var lastMission = this.missions[this.missionNumber - 2];
+    if (round.missionNumber > 1) {
+        var lastMission = round.missions[round.missionNumber - 2];
         lastMission.inProgress = false;
     }
 
     //set current mission in progress
-    //subtract one because this.missions indexes start at 0
-    var currentMission = this.getCurrentMission();
+    //subtract one because round.missions indexes start at 0
+    var currentMission = Round.getCurrentMission(round);
     currentMission.inProgress = true;
 };
 
-Round.prototype.showStartPage = function () {
-    this.changePhase("start");
+Round.showStartPage = function (round) {
+    Round.changePhase(round, "start");
 
-    // what the parameters do:
-    // (playersToWaitOn, eventToWaitFor, onPlayerDone, onAllDone)
-    // *all done is not used b/c it is handled in the mission object
-    var self = this;
-    this.waitFor(
-        this.players,
-        "doneViewingStart",
-        function (player, data) {
-            //ran everytime a player hits next
-            self.sendStateToAll();
-        },
-        function () {
-            //ran once everyone is ready to start
-            self.startSelectionPhase();
-        },
-    );
-
-    this.sendStateToAll();
+    // wait for everyone to view their role
+    Round.waitFor(round, round.players);
 };
 
 // the first phase of each mission
-Round.prototype.startSelectionPhase = function () {
-    this.changePhase("selection");
-    this.captainsSelectedPlayers = [];
+Round.startSelectionPhase = function (round) {
+    Round.changePhase(round, "selection");
+    round.captainsSelectedPlayers = [];
 
     // this list is only going to contain one player, but I do it because
     // waitFor requires an array of players
-    var captainList = [this.currentCaptain];
-
-    // this is for the live updating check list showed on everyone elses screens
-    var self = this;
-    this.currentCaptain.socket.on("updateSelectedPlayers", function (data) {
-        self.captainsSelectedPlayers = data.selectedPlayers;
-        self.sendStateToAll();
-    });
-
-    // what the parameters do:
-    // (playersToWaitOn, eventToWaitFor, onPlayerDone, onAllDone)
-    // *all done is not used b/c it is handled in the mission object
-    this.waitFor(captainList, "submitSelectedPlayers", function (player, data) {
-        // ran once the captain has selected players
-        self.startVotingPhase(data.selectedPlayers);
-        self.currentCaptain.socket.removeAllListeners("updateSelectedPlayers");
-    });
-
-    this.sendStateToAll();
+    var captainList = [Round.getCaptain(round)];
+    Round.waitFor(round, captainList);
 };
 
-// called as a result of receiving the 'captainsSelectedPlayers'
-// event from the captain
-Round.prototype.startVotingPhase = function (selectedPlayers) {
-    var thisMission = this.getCurrentMission();
+// this is for the live updating check list showed on everyone elses screens
+Round.updateSelectedPlayers = function (round, player, selectedPlayers) {
+    Round.checkSelection(round, player, selectedPlayers);
+    round.captainsSelectedPlayers = selectedPlayers;
+};
+
+// ran once the captain has selected players
+Round.submitSelectedPlayers = function (round, player, selectedPlayers) {
+    Round.checkSelection(round, player, selectedPlayers);
+    var numPlayersToSelect = Round.getCurrentMission(round).playersNeeded;
+    if (selectedPlayers.length !== numPlayersToSelect) {
+        throw new Error("Select " + numPlayersToSelect + " players.");
+    }
+    Round.startVotingPhase(round, selectedPlayers);
+};
+
+Round.checkSelection = function (round, player, selectedPlayers) {
+    if (round.phase !== "selection" || !player.isCaptain) {
+        throw new Error("Only the captain can select players right now.");
+    }
+    var numPlayersToSelect = Round.getCurrentMission(round).playersNeeded;
+    if (
+        !Array.isArray(selectedPlayers) ||
+        selectedPlayers.length > numPlayersToSelect ||
+        new Set(selectedPlayers).size !== selectedPlayers.length ||
+        !selectedPlayers.every((id) => Round.getPlayer(round, id))
+    ) {
+        throw new Error("That is not a valid team.");
+    }
+};
+
+Round.startVotingPhase = function (round, selectedPlayers) {
+    var thisMission = Round.getCurrentMission(round);
     thisMission.potentialPlayersOnMission = selectedPlayers;
 
-    // runs the processResultsOfVote function once everyone has voted
-    thisMission.startVote(this.processResultsOfVote.bind(this));
+    Mission.startVote(thisMission);
 
-    this.changePhase("voting");
-    this.sendStateToAll();
-
-    // what the parameters do:
-    // (playersToWaitOn, eventToWaitFor, onPlayerDone, onAllDone)
-    // *all done is not used b/c it is handled in the mission object
-    var self = this;
-    this.waitFor(this.players, "selectionVote", function (player, data) {
-        // ran when a single player's vote is submitted
-        thisMission.addVote(player.id, data.vote);
-        self.sendStateToAll();
-    });
+    Round.changePhase(round, "voting");
+    Round.waitFor(round, round.players);
 };
 
-Round.prototype.processResultsOfVote = function (wasVoteSuccessful) {
-    var thisMission = this.getCurrentMission();
+// ran when a single player's vote is submitted
+Round.vote = function (round, player, vote) {
+    if (round.phase !== "voting" || typeof vote !== "boolean") {
+        throw new Error("You can't vote right now.");
+    }
+    if (!Round.removePlayerFromWaitingList(round, player)) {
+        throw new Error("You already voted.");
+    }
+    var thisMission = Round.getCurrentMission(round);
+    Mission.addVote(thisMission, player.id, vote);
+
+    // runs the processResultsOfVote function once everyone has voted
+    if (Mission.allPlayersVoted(thisMission)) {
+        Round.processResultsOfVote(
+            round,
+            Mission.wasVoteSuccessful(thisMission),
+        );
+    }
+};
+
+Round.processResultsOfVote = function (round, wasVoteSuccessful) {
+    if (wasVoteSuccessful) {
+        round.rejectedTeams = 0;
+    } else {
+        // the snakes win if the team votes fail 5 times in a row.
+        round.rejectedTeams++;
+        if (round.rejectedTeams === 5) {
+            round.winner = "snake";
+        }
+    }
 
     // wait for everyone to be done viewing the results that
     // we are about to send
-    var self = this;
-    this.waitFor(
-        this.players,
-        "doneViewingVoteResults",
-        function () {
-            // ran everytime a player hits next
-            self.sendStateToAll();
-        },
-        function () {
-            // ran once, once everyone is done
-            if (wasVoteSuccessful) {
-                thisMission.putSelectedPlayersOnTheMission();
-                self.startMissionPhase();
-            } else {
-                // since the vote failed, we'll try the vote again with a new captain
-                // to select players.
-                // the snakes win if the team votes fail 5 times in a row.
-                self.assignNewCaptain();
-                self.startSelectionPhase();
-            }
-        },
-    );
-
-    //send the results
-    this.changePhase("voting_results");
-    this.sendStateToAll();
+    Round.changePhase(round, "voting_results");
+    Round.waitFor(round, round.players);
 };
 
-Round.prototype.startMissionPhase = function () {
-    var thisMission = this.getCurrentMission();
+// ran once, once everyone is done viewing the vote results
+Round.doneViewingVoteResults = function (round) {
+    var thisMission = Round.getCurrentMission(round);
+    if (round.winner) {
+        // game over!
+        round.ended = true;
+    } else if (round.rejectedTeams === 0) {
+        Mission.putSelectedPlayersOnTheMission(thisMission);
+        Round.startMissionPhase(round);
+    } else {
+        // since the vote failed, we'll try the vote again with a new captain
+        // to select players.
+        Round.assignNewCaptain(round);
+        Round.startSelectionPhase(round);
+    }
+};
+
+Round.startMissionPhase = function (round) {
+    var thisMission = Round.getCurrentMission(round);
+
+    Mission.startMission(thisMission);
+
+    // wait for the players on the mission to vote
+    Round.waitFor(
+        round,
+        thisMission.playersOnMission.map((id) => Round.getPlayer(round, id)),
+    );
+
+    Round.changePhase(round, "mission");
+};
+
+//ran when a single player on the mission is done
+Round.missionVote = function (round, player, vote) {
+    if (round.phase !== "mission" || typeof vote !== "boolean") {
+        throw new Error("You can't vote on the mission right now.");
+    }
+    if (!Round.removePlayerFromWaitingList(round, player)) {
+        throw new Error("You are not waiting to vote on this mission.");
+    }
+    var thisMission = Round.getCurrentMission(round);
+    Mission.addMissionVote(thisMission, player.id, vote);
 
     // process the results of the mission once everyone votes
-    thisMission.startMission(this.startDrumroll.bind(this));
-
-    // what the parameters do:
-    // (playersToWaitOn, eventToWaitFor, onPlayerDone, onAllDone)
-    // *onAllDone is not used because it is handled in the mission object
-    var self = this;
-    this.waitFor(
-        thisMission.playersOnMission,
-        "missionVote",
-        function (player, data) {
-            //ran when a single player is done
-            thisMission.addMissionVote(player.id, data.vote);
-            self.sendStateToAll();
-        },
-    );
-
-    this.changePhase("mission");
-    this.sendStateToAll();
+    if (Mission.allPlayersMissionVoted(thisMission)) {
+        Round.startDrumroll(round, Mission.wasMissionSuccessful(thisMission));
+    }
 };
 
-Round.prototype.processResultsOfMission = function (wasMissionSuccessful) {
+Round.processResultsOfMission = function (round, wasMissionSuccessful) {
     if (wasMissionSuccessful) {
         // loyalists win this mission
-        this.getCurrentMission().status = "loyalist";
+        Round.getCurrentMission(round).status = "loyalist";
     } else {
         // snakes win this mission
-        this.getCurrentMission().status = "snake";
+        Round.getCurrentMission(round).status = "snake";
     }
+    round.pendingMissionResult = null;
 };
 
 // "drumroll" is a phase that occurs after a mission has conculuded
 // in which the game waits for each player to be ready to view the
 // results
-Round.prototype.startDrumroll = function (wasMissionSuccessful) {
-    // wait for everyone to be ready to view the mission results
-    this.waitFor(
-        this.players,
-        "readyToViewResults",
-        () => {
-            // ran everytime a player hits next
-            this.sendStateToAll();
-        },
-        () => {
-            // ran once everyone is done
-            this.processResultsOfMission(wasMissionSuccessful);
-            this.sendMissionResults();
-        },
-    );
+Round.startDrumroll = function (round, wasMissionSuccessful) {
+    round.pendingMissionResult = wasMissionSuccessful;
 
-    this.changePhase("drumroll");
-    this.sendStateToAll();
+    // wait for everyone to be ready to view the mission results
+    Round.changePhase(round, "drumroll");
+    Round.waitFor(round, round.players);
 };
 
-Round.prototype.sendMissionResults = function () {
-    var gameOver = this.checkForWin();
+Round.sendMissionResults = function (round) {
+    Round.checkForWin(round);
 
     // wait for everyone to be done viewing the results that
     // we are about to send
-    var self = this;
-    this.waitFor(
-        this.players,
-        "doneViewingResults",
-        function () {
-            // ran everytime a player hits next
-            self.sendStateToAll();
-        },
-        function () {
-            // ran once everyone is done
-            if (!gameOver) {
-                self.assignNewCaptain();
-                self.prepNextMission();
-                self.startSelectionPhase();
-            } else {
-                // game over!
-                self.onEnd();
-            }
-        },
-    );
-
-    // send the results
-    this.changePhase("mission_results");
-    this.sendStateToAll();
+    Round.changePhase(round, "mission_results");
+    Round.waitFor(round, round.players);
 };
 
-Round.prototype.updateReplacePageDisconnectedPlayers = function () {
-    let currentState = this.getState();
-    for (let socket of this.socketsViewingReplacePage) {
-        socket.emit("replace", currentState);
+// ran once everyone is done viewing the mission results
+Round.doneViewingResults = function (round) {
+    if (!round.winner) {
+        Round.assignNewCaptain(round);
+        Round.prepNextMission(round);
+        Round.startSelectionPhase(round);
+    } else {
+        // game over!
+        round.ended = true;
     }
 };
-
-Round.prototype.disconnectAllReplaceViewers = function () {
-    for (let socket of this.socketsViewingReplacePage) {
-        socket.disconnect(true);
-    }
-    this.socketsViewingReplacePage = [];
-};
-
-Round.prototype.addReplaceViewer = function (theSocket) {
-    this.socketsViewingReplacePage.push(theSocket);
-    this.updateReplacePageDisconnectedPlayers();
-};
-
-Round.prototype.removeReplaceViewer = function (theSocket) {
-    for (let i = 0; i < this.socketsViewingReplacePage.length; i++) {
-        const aSocket = this.socketsViewingReplacePage[i];
-        if (aSocket === theSocket) {
-            this.socketsViewingReplacePage.splice(i, 1);
-            if (this.disconnectedPlayers.length === 0) {
-                this.disconnectAllReplaceViewers();
-            }
-            return true;
-        }
-    }
-    return false;
-};
-
-module.exports = Round;
