@@ -21,7 +21,7 @@ export default class StartPage extends Component {
         var me = this.props.you;
         var data = this.props.round;
 
-        var ourRole = me.isSnake ? "snake" : "loyalist";
+        var ourRole = me.isTraitor ? "traitor" : "faithful";
 
         return (
             <div className="round-info-bar">
@@ -34,8 +34,8 @@ export default class StartPage extends Component {
                 <p>Players:</p>
                 <PlayerList players={data.players} />
                 <p>
-                    {data.players.length - data.snakeCount} loyalists |{" "}
-                    {data.snakeCount} snakes
+                    {data.players.length - data.traitorCount} loyalists |{" "}
+                    {data.traitorCount} snakes
                 </p>
                 <SOButton onClick={this.doneViewingStart.bind(this)}>
                     Begin

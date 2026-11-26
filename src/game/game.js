@@ -1,5 +1,5 @@
 //
-// Snakeout Game
+// Traitors Game
 //
 
 import { Round } from "./round.js";
@@ -146,7 +146,7 @@ function whenDone(phase) {
 
 function getState(round, you) {
     var currentMission = Round.getCurrentMission(round);
-    var showAllRoles = !!round.winner || !!(you && you.isSnake);
+    var showAllRoles = !!round.winner || !!(you && you.isTraitor);
 
     var players = round.players.map((player) =>
         Player.getJson(player, showAllRoles || player === you),
@@ -186,7 +186,7 @@ function getState(round, you) {
             currentMission.potentialPlayersOnMission,
         ),
         rejectedTeams: round.rejectedTeams,
-        snakeCount: round.snakeCount,
+        traitorCount: round.traitorCount,
         waitingList: byId(round.playersBeingWaitedOn),
         winner: round.winner,
     };

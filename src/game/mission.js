@@ -1,5 +1,5 @@
 //
-// Snakeout Mission
+// Traitors Mission
 //
 
 export function Mission(number, playersNeeded, numberOfPlayersInTheGame) {

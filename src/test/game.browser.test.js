@@ -148,12 +148,12 @@ test("only shows who the other traitors are to the traitors", async () => {
     const session = await party();
     session.start();
     const seats = session.state().round.players;
-    const traitors = seats.filter((seat) => seat.isSnake);
+    const traitors = seats.filter((seat) => seat.isTraitor);
     for (const [i, doc] of session.documents.entries()) {
         const other = traitors.find((seat) => seat.partyId !== players[i].id);
         const isTraitor = seats.find(
             (s) => s.partyId === players[i].id,
-        ).isSnake;
+        ).isTraitor;
         const reveal = await button(doc, "view your role");
         reveal.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
         const role = await vi.waitFor(

@@ -1,5 +1,5 @@
 //
-// Snakeout Player
+// Traitors Player
 //
 
 // A seat in a round. The seat keeps its id when a newcomer replaces the
@@ -10,7 +10,7 @@ export function Player(name, partyId, id) {
         partyId,
         id,
         isConnected: true,
-        isSnake: false,
+        isTraitor: false,
         isCaptain: false,
         hasBeenCaptain: false,
     };
@@ -24,7 +24,7 @@ Player.getJson = function (player, showRole) {
         isCaptain: player.isCaptain,
         hasBeenCaptain: player.hasBeenCaptain,
     };
-    if (showRole) json.isSnake = player.isSnake;
+    if (showRole) json.isTraitor = player.isTraitor;
     return json;
 };
 

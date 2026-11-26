@@ -9,20 +9,6 @@ import { scenarios } from "./scenarios.js";
 const STATE_LIMIT = 512 * 1024;
 const PAYLOAD_LIMIT = 16 * 1024;
 
-// the game still uses the Snakeout names
-const RENAMED_KEYS = { isSnake: "isTraitor", snakeCount: "traitorCount" };
-const RENAMED_VALUES = { snake: "traitor", loyalist: "faithful" };
-const rename = (data) =>
-    JSON.parse(JSON.stringify(data), function (key, value) {
-        if (key in RENAMED_KEYS) {
-            this[RENAMED_KEYS[key]] = value;
-            return undefined;
-        }
-        return ["status", "winner"].includes(key)
-            ? (RENAMED_VALUES[value] ?? value)
-            : value;
-    });
-
 // Nova only ever keeps plain JSON
 function json(value, limit) {
     const text = JSON.stringify(value);
@@ -50,9 +36,7 @@ function createParty(n) {
     function broadcast() {
         for (const [who, player] of players) {
             if (!present.has(who)) continue;
-            player.view = rename(
-                game.selectView(json(state, STATE_LIMIT), who),
-            );
+            player.view = game.selectView(json(state, STATE_LIMIT), who);
             player.listener(player.view);
         }
     }
@@ -86,7 +70,7 @@ function createParty(n) {
         };
         player.connection = new Connection(() => {}, nova);
         player.connection.onError = (error) => (player.error = error);
-        player.view = rename(nova.state.get());
+        player.view = nova.state.get();
         return player;
     }
 

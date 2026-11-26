@@ -1,5 +1,5 @@
 //
-// Snakeout Round
+// Traitors Round
 //
 
 import { Mission } from "./mission.js";
@@ -19,7 +19,7 @@ export function Round(roundNumber, players) {
         missionNumber: 0,
         missions: [],
         captainsSelectedPlayers: [],
-        snakeCount: Round.getNumberOfSnakes(players.length),
+        traitorCount: Round.getNumberOfTraitors(players.length),
         rejectedTeams: 0,
         winner: false,
         // the mission's result, kept secret until everyone is ready for it
@@ -120,20 +120,20 @@ Round.checkIfDone = function (round) {
 };
 
 Round.checkForWin = function (round) {
-    var snakeWins = 0;
-    var loyalistWins = 0;
+    var traitorWins = 0;
+    var faithfulWins = 0;
     for (var i = 0; i < round.missions.length; i++) {
         var thisMission = round.missions[i];
-        if (thisMission.status === "snake") {
-            snakeWins++;
-        } else if (thisMission.status === "loyalist") {
-            loyalistWins++;
+        if (thisMission.status === "traitor") {
+            traitorWins++;
+        } else if (thisMission.status === "faithful") {
+            faithfulWins++;
         }
     }
-    if (snakeWins === 3) {
-        round.winner = "snake";
-    } else if (loyalistWins === 3) {
-        round.winner = "loyalist";
+    if (traitorWins === 3) {
+        round.winner = "traitor";
+    } else if (faithfulWins === 3) {
+        round.winner = "faithful";
     }
     return !!round.winner;
 };
@@ -160,7 +160,7 @@ Round.replacePlayer = function (round, playerToReplaceId, partyPlayer) {
     Round.checkIfDone(round);
 };
 
-Round.getNumberOfSnakes = function (numOfPlayers) {
+Round.getNumberOfTraitors = function (numOfPlayers) {
     if (numOfPlayers === 5 || numOfPlayers === 6) {
         return 2;
     } else if (numOfPlayers >= 7 && numOfPlayers <= 9) {
@@ -174,18 +174,18 @@ Round.getNumberOfSnakes = function (numOfPlayers) {
 };
 
 Round.assignRoles = function (round) {
-    var numOfSnakes = round.snakeCount;
+    var numOfTraitors = round.traitorCount;
 
     //shuffle a copy of the players so that the same people are not
-    //	snakes everytime, and the player list does not give them away
+    //	traitors everytime, and the player list does not give them away
     var shuffledPlayers = shuffle(round.players.slice());
 
     for (var i = 0; i < shuffledPlayers.length; i++) {
-        if (numOfSnakes > 0) {
-            shuffledPlayers[i].isSnake = true;
-            numOfSnakes--;
+        if (numOfTraitors > 0) {
+            shuffledPlayers[i].isTraitor = true;
+            numOfTraitors--;
         } else {
-            shuffledPlayers[i].isSnake = false;
+            shuffledPlayers[i].isTraitor = false;
         }
     }
 };
@@ -336,10 +336,10 @@ Round.processResultsOfVote = function (round, wasVoteSuccessful) {
     if (wasVoteSuccessful) {
         round.rejectedTeams = 0;
     } else {
-        // the snakes win if the team votes fail 5 times in a row.
+        // the traitors win if the team votes fail 5 times in a row.
         round.rejectedTeams++;
         if (round.rejectedTeams === 5) {
-            round.winner = "snake";
+            round.winner = "traitor";
         }
     }
 
@@ -399,11 +399,11 @@ Round.missionVote = function (round, player, vote) {
 
 Round.processResultsOfMission = function (round, wasMissionSuccessful) {
     if (wasMissionSuccessful) {
-        // loyalists win this mission
-        Round.getCurrentMission(round).status = "loyalist";
+        // faithful win this mission
+        Round.getCurrentMission(round).status = "faithful";
     } else {
-        // snakes win this mission
-        Round.getCurrentMission(round).status = "snake";
+        // traitors win this mission
+        Round.getCurrentMission(round).status = "traitor";
     }
     round.pendingMissionResult = null;
 };
