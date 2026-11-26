@@ -2,7 +2,7 @@
 // Snakeout itself
 //
 
-var Game = require("./game");
+var Game = require("../game/game");
 
 function Snakeout(devModeEnabled) {
     this.games = [];
